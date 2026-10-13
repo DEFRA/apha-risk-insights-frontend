@@ -1,0 +1,13 @@
+services:
+  apha-risk-insights-frontend:
+    ports:
+      - '3000:3000'
+      - '9230:9229'
+
+  floci:
+    ports:
+      - '4566:4566'
+
+  redis:
+    ports:
+      - '6379:6379'

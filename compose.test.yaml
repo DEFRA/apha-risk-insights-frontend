@@ -1,0 +1,34 @@
+services:
+  apha-risk-insights-frontend:
+    build:
+      target: development
+    image: apha-risk-insights-frontend-development
+    container_name: apha-risk-insights-frontend-test
+    # ./coverage is a bind mount, so vitest cannot clean (rmdir) it
+    command: npm test -- --coverage.clean=false
+    # Use redis-test, not the dev `redis` service, so the shared apha-risk
+    # network never has two containers answering to the same hostname
+    links: !override
+      - 'floci:floci'
+      - 'redis-test:redis'
+    depends_on: !override
+      floci:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    # Unit tests assert config defaults, so drop the dev redis/session env vars
+    environment: !override
+      PORT: 3000
+      NODE_ENV: test
+    volumes:
+      - ./test:/home/node/test
+      - ./vitest.config.js:/home/node/vitest.config.js
+      - ./coverage:/home/node/coverage
+      - ./src:/home/node/src
+      - ./package.json:/home/node/package.json
+
+  redis-test:
+    extends:
+      file: compose.yaml
+      service: redis
+    container_name: redis-test
