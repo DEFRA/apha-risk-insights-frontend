@@ -1,0 +1,6 @@
+services:
+  apha-risk-insights-frontend:
+    command: npm run dev:debug
+    ports:
+      - '3000:3000'
+      - '9230:9229'

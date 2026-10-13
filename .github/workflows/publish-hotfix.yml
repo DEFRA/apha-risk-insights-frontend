@@ -34,10 +34,11 @@ jobs:
           cache: npm
       - run: |
           npm ci
-          npm run build:frontend
           npm run format:check
           npm run lint
-          npm test
+          mkdir -p coverage
+          chmod -R a+rw ./coverage
+          docker compose -p apha-risk-insights-frontend-test -f compose.yaml -f compose.test.yaml run --build --rm apha-risk-insights-frontend
 
       - name: Publish Hot Fix
         uses: DEFRA/cdp-build-action/build-hotfix@main
