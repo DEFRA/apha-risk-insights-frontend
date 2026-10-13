@@ -14,7 +14,7 @@ Pages must not change when the data source changes. Otherwise the switch from th
 
 ## Decision
 
-We will read all risk and disease data through a data source in `src/dal/`, with four methods: `listRisks(query)`, `getRisk(riskId)`, `listDiseases(query)` and `getDisease(diseaseCode)`.
+We will read all risk and disease data through a data source in `src/data/`, with four methods: `listRisks(query)`, `getRisk(riskId)`, `listDiseases(query)` and `getDisease(diseaseCode)`.
 
 The data source returns objects in the backend's OpenAPI shapes (`RiskPage`, `RiskDetail`, `Disease`). Services and presenters use only this interface and never read the JSON file or call HTTP directly.
 
@@ -39,4 +39,4 @@ Negative:
 Neutral:
 
 - The backend API has no authentication today (`security: []`), so the `api` implementation does not need credentials yet. This must be revisited if that changes.
-- [[adopting-flat-src-layout]] defines the folder layout. `src/dal/` is not created in the structure change. It is added with the first data source implementation.
+- [[adopting-flat-src-layout]] defines the folder layout. `src/data/` is not created in the structure change. It is added with the first data source implementation.

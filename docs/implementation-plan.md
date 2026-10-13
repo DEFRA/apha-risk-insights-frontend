@@ -17,7 +17,7 @@ This is a structure change. The app must behave the same afterwards.
 - Config nesting or splitting `src/config/config.js`. Kept as one file, keys unchanged.
 - Drift-detection workflow, `.github/copilot-instructions.md`, `.github/skills/`.
 - New production dependencies. `git diff package.json` may show only script and `imports` changes.
-- Creating `src/services/`, `src/dal/` or `src/schemas/`. Add them when they have content.
+- Creating `src/services/`, `src/data/` or `src/schemas/`. Add them when they have content.
 
 ## Read first
 
@@ -117,7 +117,7 @@ Move `src/server/routes/*/index.js` and `controller.js` in Phase 3, not here. Th
 
 Co-located tests (`*.test.js`) move to `test/unit/` with the same relative path under the new `src/` location. For example `src/server/common/helpers/errors.test.js` becomes `test/unit/utils/errors.test.js`. Controller tests are handled in Phase 3.
 
-Do not create `src/services/`, `src/dal/` or `src/schemas/`.
+Do not create `src/services/`, `src/data/` or `src/schemas/`.
 
 ### 2.2 Reference updates
 
@@ -322,7 +322,7 @@ Done when every check passes.
 
 1. The backend's risk endpoints are not implemented. `apha-risk-insights-backend/src/routes/` has only `health.js` and `documentation.js`. This does not block the change.
 2. Coverage threshold. Defra expects at least 90% global. This change doesn't add one. Report the current figure.
-3. ADR 1 lists `services/` and `dal/` in its decision, and its view folder names differ from this plan. Flag the wording so the ADR can be updated with a note, not silently edited.
+3. ADR 1 lists `services/` and `data/` in its decision, and its view folder names differ from this plan. Flag the wording so the ADR can be updated with a note, not silently edited.
 4. If anything in the repo contradicts an ADR, flag it rather than changing the ADR silently.
 
 ## Final report

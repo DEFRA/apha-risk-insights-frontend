@@ -25,7 +25,7 @@ We will restructure `src/` to a flat layout with domain folders, following `fcp-
 - `src/config/` holds the convict config. It stays as one file, `config.js`, with flat keys.
 - Tests live in a separate `test/` tree. `test/unit/` mirrors `src/`, `test/integration/narrow/` uses `server.inject()`, and `test/helpers/` holds shared support code.
 
-We will not create `src/services/`, `src/dal/` or `src/schemas/` in this change. They are added when they have content. Data access is decided separately in the ADR on accessing risk data through a repository.
+We will not create `src/services/`, `src/data/` or `src/schemas/` in this change. They are added when they have content. Data access is decided separately in the ADR on accessing risk data through a repository.
 
 We will keep these choices from the current repository:
 
