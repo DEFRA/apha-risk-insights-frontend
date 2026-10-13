@@ -37,8 +37,6 @@ We will not add a shared engine package. The service is small enough to keep its
 
 We will not add `@hapi/crumb` in this change, because the service has no POST routes. Any change that adds a POST route must add CSRF protection (Crumb with a `crumb` hidden field in each form) in the same change.
 
-The step-by-step work for this change is in `docs/implementation-plan.md`.
-
 ## Consequences
 
 Positive:
