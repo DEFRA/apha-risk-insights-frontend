@@ -4,24 +4,46 @@
 
 /**
  * Display details per `RiskStatus`. Bars use even steps, one to five.
- * `modifier` is the GOV.UK tag colour for the level.
+ * `modifier` is the GOV.UK tag colour for the level. `colour` is the hex of the
+ * matching `govuk-colour()` used by the risk card bars (`_risk-card.scss`), for
+ * the chart markers, which cannot read Sass. A test pins the values.
  */
 export const LEVELS = {
   negligible: {
     label: 'Negligible',
     number: 1,
     key: 'negligible',
-    modifier: 'grey'
+    modifier: 'grey',
+    colour: '#484949'
   },
   'very low': {
     label: 'Very low',
     number: 2,
     key: 'very-low',
-    modifier: 'green'
+    modifier: 'green',
+    colour: '#0f7a52'
   },
-  low: { label: 'Low', number: 3, key: 'low', modifier: 'yellow' },
-  medium: { label: 'Medium', number: 4, key: 'medium', modifier: 'orange' },
-  high: { label: 'High', number: 5, key: 'high', modifier: 'red' }
+  low: {
+    label: 'Low',
+    number: 3,
+    key: 'low',
+    modifier: 'yellow',
+    colour: '#ffdd00'
+  },
+  medium: {
+    label: 'Medium',
+    number: 4,
+    key: 'medium',
+    modifier: 'orange',
+    colour: '#f47738'
+  },
+  high: {
+    label: 'High',
+    number: 5,
+    key: 'high',
+    modifier: 'red',
+    colour: '#ca3535'
+  }
 }
 
 /** Tag details per `LevelChange`. Undetermined has no arrow. */

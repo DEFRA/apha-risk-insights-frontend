@@ -1,3 +1,4 @@
+import { riskHistoryChartPresenter } from '#/presenters/risk/risk-history-chart-presenter.js'
 import { diseaseDetailPresenter } from '#/presenters/risk/disease-detail-presenter.js'
 import {
   assessment,
@@ -65,8 +66,19 @@ describe('#diseaseDetailPresenter', () => {
     expect(table.rows).toHaveLength(1)
   })
 
-  test('Should not include a chart yet', () => {
-    expect(diseaseDetailPresenter(record)).not.toHaveProperty('chart')
+  test('Should build the chart from the current assessment then history', () => {
+    const { chart } = diseaseDetailPresenter(record)
+
+    expect(chart).toEqual(riskHistoryChartPresenter(hpaiTimeline))
+    expect(chart.title).toBe('Risk level over time')
+    expect(chart.spec.data.at(-1).y).toEqual([5, 4, 5])
+  })
+
+  test('Should draw a single marker when there is no history', () => {
+    const { chart } = diseaseDetailPresenter({ ...record, riskHistory: [] })
+
+    expect(chart.spec.data).toHaveLength(1)
+    expect(chart.spec.data[0].y).toEqual([5])
   })
 
   test('Should throw for an unknown status', () => {

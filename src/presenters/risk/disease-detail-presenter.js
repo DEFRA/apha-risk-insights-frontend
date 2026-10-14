@@ -1,4 +1,5 @@
 import { riskCardPresenter } from '#/presenters/risk/risk-card-presenter.js'
+import { riskHistoryChartPresenter } from '#/presenters/risk/risk-history-chart-presenter.js'
 import { riskHistoryTablePresenter } from '#/presenters/risk/risk-history-table-presenter.js'
 
 const BACK_LINK = { text: 'Back to overview', href: '/risk' }
@@ -10,7 +11,7 @@ const BACK_LINK = { text: 'Back to overview', href: '/risk' }
  * assessment followed by the history, newest first. Unknown enum values and
  * invalid dates throw (fail loud) so the page never shows incorrect risk data.
  * @param {{id: string, disease: {name: string}, strain?: string, risk: object, riskHistory: object[]}} detail
- * @returns {{pageTitle: string, heading: string, backLink: {text: string, href: string}, latest: object, table: object}}
+ * @returns {{pageTitle: string, heading: string, backLink: {text: string, href: string}, latest: object, chart: object | null, table: object}}
  */
 export const diseaseDetailPresenter = ({
   id,
@@ -18,13 +19,18 @@ export const diseaseDetailPresenter = ({
   strain,
   risk,
   riskHistory
-}) => ({
-  pageTitle: disease.name,
-  heading: disease.name,
-  backLink: { ...BACK_LINK },
-  latest: riskCardPresenter(
-    { id, disease, strain, risk },
-    { variant: 'detail' }
-  ),
-  table: riskHistoryTablePresenter(disease.name, [risk, ...riskHistory])
-})
+}) => {
+  const timeline = [risk, ...riskHistory]
+
+  return {
+    pageTitle: disease.name,
+    heading: disease.name,
+    backLink: { ...BACK_LINK },
+    latest: riskCardPresenter(
+      { id, disease, strain, risk },
+      { variant: 'detail' }
+    ),
+    chart: riskHistoryChartPresenter(timeline),
+    table: riskHistoryTablePresenter(disease.name, timeline)
+  }
+}

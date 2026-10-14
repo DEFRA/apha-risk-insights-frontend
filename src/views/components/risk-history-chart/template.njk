@@ -1,0 +1,20 @@
+{% if params and params.spec %}
+{# Escaping "<" keeps any "</script>" or "<!--" in a string inside the JSON element. #}
+{% set embeddedJson = ({ spec: params.spec } | dump | replace("<", "\\u003c")) %}
+<div class="app-risk-history-chart" data-testid="app-risk-history-chart">
+  <div class="govuk-summary-card">
+    <div class="govuk-summary-card__title-wrapper">
+      <h2 class="govuk-summary-card__title" id="app-risk-history-chart-title">{{ params.title }}</h2>
+    </div>
+    <div class="govuk-summary-card__content">
+      <p class="govuk-body" id="app-risk-history-chart-description">{{ params.description }}</p>
+      <div class="app-risk-history-chart__container" role="img" aria-labelledby="app-risk-history-chart-title" aria-describedby="app-risk-history-chart-description" data-risk-history-chart>
+        <div class="app-risk-history-chart__plot" data-risk-history-chart-plot></div>
+      </div>
+      <script type="application/json" data-risk-history-chart-data>{{ embeddedJson | safe }}</script>
+      {# Plotly skips injecting its <style> element when this exists (strict CSP). Its CSS is vendored in the app stylesheet. #}
+      <div id="plotly.js-style-global" class="no-inline-styles" hidden></div>
+    </div>
+  </div>
+</div>
+{% endif %}

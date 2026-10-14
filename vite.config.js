@@ -10,6 +10,7 @@ export default defineConfig({
       input: {
         htmlAssets: 'src/client/assets.html',
         application: 'src/client/javascripts/application.js',
+        riskHistoryChart: 'src/client/javascripts/risk-history-chart.js',
         applicationCss: 'src/client/stylesheets/application.scss'
       }
     },

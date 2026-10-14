@@ -1,6 +1,7 @@
 {% extends 'common/layout.njk' %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "components/risk-card/macro.njk" import appRiskCard %}
+{% from "components/risk-history-chart/macro.njk" import appRiskHistoryChart %}
 {% from "components/risk-history-table/macro.njk" import appRiskHistoryTable %}
 
 {% block beforeContent %}
@@ -16,7 +17,9 @@
     <div class="govuk-grid-column-one-half">
       {{ appRiskCard(latest) }}
     </div>
-    <div class="govuk-grid-column-one-half"></div>
+    <div class="govuk-grid-column-one-half">
+      {{ appRiskHistoryChart(chart) }}
+    </div>
   </div>
 
   <div class="govuk-grid-row">
@@ -25,4 +28,11 @@
       {{ appRiskHistoryTable(table) }}
     </div>
   </div>
+{% endblock %}
+
+{% block bodyEnd %}
+  {{ super() }}
+  {% if chart %}
+    <script type="module" src="{{ getAssetPath('src/client/javascripts/risk-history-chart.js') }}"></script>
+  {% endif %}
 {% endblock %}
