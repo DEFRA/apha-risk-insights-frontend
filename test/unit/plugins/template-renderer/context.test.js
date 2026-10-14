@@ -67,8 +67,8 @@ describe('context and cache', () => {
             },
             {
               current: false,
-              text: 'About',
-              href: '/about'
+              text: 'Risk overview',
+              href: '/risk'
             }
           ],
           serviceName: 'apha-risk-insights-frontend',
@@ -156,8 +156,8 @@ describe('context and cache', () => {
             },
             {
               current: false,
-              text: 'About',
-              href: '/about'
+              text: 'Risk overview',
+              href: '/risk'
             }
           ],
           serviceName: 'apha-risk-insights-frontend',
