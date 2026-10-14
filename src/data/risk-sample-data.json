@@ -1,0 +1,65 @@
+{
+  "_comment": "SAMPLE DATA ONLY. Not real assessments. Shaped as RiskSummary in apha-risk-insights-backend/docs/openapi/v1.yaml (0.1.0). Replaced by the API data source later (see adr/accessing-risk-data-through-repository.adr.md).",
+  "items": [
+    {
+      "id": "5b0f7a52-3c1e-4d6a-9a47-0e8d2f1c6b01",
+      "disease": { "code": "AHS", "name": "African Horse Sickness" },
+      "risk": {
+        "status": "negligible",
+        "previousStatus": null,
+        "levelChange": "undetermined",
+        "source": "Sample data",
+        "dateReported": "2026-07-22T00:00:00Z"
+      }
+    },
+    {
+      "id": "5b0f7a52-3c1e-4d6a-9a47-0e8d2f1c6b02",
+      "disease": { "code": "ASF", "name": "African Swine Fever" },
+      "risk": {
+        "status": "medium",
+        "previousStatus": "medium",
+        "levelChange": "no change",
+        "source": "Sample data",
+        "dateReported": "2026-08-28T00:00:00Z"
+      }
+    },
+    {
+      "id": "5b0f7a52-3c1e-4d6a-9a47-0e8d2f1c6b03",
+      "disease": { "code": "BTV", "name": "Bluetongue" },
+      "strain": "BTV-3",
+      "risk": {
+        "status": "low",
+        "previousStatus": "high",
+        "levelChange": "improving",
+        "source": "Sample data",
+        "dateReported": "2026-09-30T00:00:00Z"
+      }
+    },
+    {
+      "id": "5b0f7a52-3c1e-4d6a-9a47-0e8d2f1c6b04",
+      "disease": { "code": "FMD", "name": "Foot and Mouth Disease" },
+      "risk": {
+        "status": "medium",
+        "previousStatus": "low",
+        "levelChange": "deteriorating",
+        "source": "Sample data",
+        "dateReported": "2026-09-14T00:00:00Z"
+      }
+    },
+    {
+      "id": "5b0f7a52-3c1e-4d6a-9a47-0e8d2f1c6b05",
+      "disease": {
+        "code": "HPAI",
+        "name": "Highly Pathogenic Avian Influenza"
+      },
+      "strain": "H5N1",
+      "risk": {
+        "status": "high",
+        "previousStatus": "medium",
+        "levelChange": "deteriorating",
+        "source": "Sample data",
+        "dateReported": "2026-10-01T00:00:00Z"
+      }
+    }
+  ]
+}
