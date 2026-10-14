@@ -1,5 +1,6 @@
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "components/change-arrow/macro.njk" import appChangeArrow %}
 
 {% set isDetail = params.variant == "detail" %}
 {% set titleHtml %}{% if isDetail %}Latest assessment{% else %}<a class="govuk-link" href="{{ params.href }}">{{ params.title }}</a>{% endif %}{% endset %}
@@ -22,9 +23,7 @@
 {% endset %}
 
 {% set changeTextHtml %}
-  {%- if params.tag.arrow -%}
-    <span class="app-risk-card__arrow app-risk-card__arrow--{{ params.tag.modifier }}" aria-hidden="true">{{ params.tag.arrow }}</span>
-  {% endif -%}
+  {{- appChangeArrow({ arrow: params.tag.arrow, modifier: params.tag.modifier }) -}}
   {{ params.tag.text }}
   {%- if params.previousLevel %}
   <span class="govuk-visually-hidden">,</span>

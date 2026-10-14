@@ -1,16 +1,8 @@
 import { slugify } from '#/utils/slugify.js'
+import { LEVELS, levelFor, tagFor } from '#/presenters/risk/risk-display.js'
 import { formatDisplayDate } from '#/plugins/template-renderer/filters/format-date.js'
 
 const NO_PREVIOUS_TEXT = 'No previous assessment'
-
-/** Display details per `RiskStatus`. Bars use even steps, one to five. */
-const LEVELS = {
-  negligible: { label: 'Negligible', number: 1, key: 'negligible' },
-  'very low': { label: 'Very low', number: 2, key: 'very-low' },
-  low: { label: 'Low', number: 3, key: 'low' },
-  medium: { label: 'Medium', number: 4, key: 'medium' },
-  high: { label: 'High', number: 5, key: 'high' }
-}
 
 const LEVEL_COUNT = Object.keys(LEVELS).length
 
@@ -22,14 +14,6 @@ const LEVEL_COUNT = Object.keys(LEVELS).length
  * @returns {string}
  */
 const riskKey = ({ id, disease }) => slugify(disease.name) || id
-
-/** Tag details per `LevelChange`. Undetermined has no arrow. */
-const TAGS = {
-  deteriorating: { text: 'Deteriorating', arrow: '↑', modifier: 'red' },
-  'no change': { text: 'No change', arrow: '→', modifier: 'grey' },
-  improving: { text: 'Improving', arrow: '↓', modifier: 'green' },
-  undetermined: { text: 'Undetermined', modifier: 'grey' }
-}
 
 /**
  * Maps an API `RiskSummary` to the params of the `riskCard` component.
@@ -46,22 +30,10 @@ export const riskCardPresenter = (
   { id, disease, strain, risk },
   { variant } = {}
 ) => {
-  const level = LEVELS[risk.status]
-  const tag = TAGS[risk.levelChange]
-  const previousLevel = risk.previousStatus && LEVELS[risk.previousStatus]
+  const level = levelFor(risk.status)
+  const previousLevel = risk.previousStatus && levelFor(risk.previousStatus)
+  const tag = tagFor(risk.levelChange)
   const previousLabel = previousLevel ? previousLevel.label : null
-
-  if (!level) {
-    throw new Error(`Unknown risk status: ${risk.status}`)
-  }
-
-  if (risk.previousStatus && !previousLevel) {
-    throw new Error(`Unknown risk status: ${risk.previousStatus}`)
-  }
-
-  if (!tag) {
-    throw new Error(`Unknown level change: ${risk.levelChange}`)
-  }
 
   const detailParams =
     variant === 'detail'

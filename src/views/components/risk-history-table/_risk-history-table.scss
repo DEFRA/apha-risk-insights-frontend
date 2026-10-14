@@ -1,0 +1,24 @@
+@use 'govuk-frontend' as *;
+
+// govuk-table has no wrapper and no overflow rule in GOV.UK Frontend 6.4.0, so
+// the table sits in a focusable, labelled scroll region. Without it, a wide
+// table makes the whole page scroll sideways at 320px (WCAG 1.4.10).
+.app-risk-history-table {
+  overflow-x: auto;
+
+  @include govuk-responsive-margin(6, 'bottom');
+
+  &:focus {
+    @include govuk-focused-box;
+  }
+
+  // The region owns the bottom margin.
+  .govuk-table {
+    margin-bottom: 0;
+  }
+}
+
+// "None" for a missing previous level.
+.app-risk-history-table__none {
+  color: govuk-functional-colour('secondary-text');
+}

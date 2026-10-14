@@ -1,0 +1,54 @@
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "components/change-arrow/macro.njk" import appChangeArrow %}
+
+{% if params.rows | length %}
+  {% set tableRows = [] %}
+
+  {% for row in params.rows %}
+    {% set dateHtml %}<time datetime="{{ row.dateTime }}">{{ row.dateText }}</time>{% endset %}
+
+    {% set levelHtml %}
+      {{- govukTag({ text: row.level.label, classes: "govuk-tag--" ~ row.level.modifier }) -}}
+    {% endset %}
+
+    {% set previousHtml %}
+      {%- if row.previousIsNone -%}
+        <span class="app-risk-history-table__none">{{ row.previousLabel }}</span>
+      {%- else -%}
+        {{ row.previousLabel }}
+      {%- endif -%}
+    {% endset %}
+
+    {% set changeHtml %}
+      {{- appChangeArrow({ arrow: row.change.arrow, modifier: row.change.modifier }) -}}
+      {{ row.change.text }}
+    {%- endset %}
+
+    {% set tableRows = (tableRows.push([
+      { html: dateHtml },
+      { html: levelHtml },
+      { html: previousHtml },
+      { html: changeHtml },
+      { text: row.source }
+    ]), tableRows) %}
+  {% endfor %}
+
+  <div class="app-risk-history-table" role="region" aria-label="{{ params.caption }}" tabindex="0">
+  {{ govukTable({
+    caption: params.caption,
+    captionClasses: "govuk-visually-hidden",
+    classes: "govuk-table--small-text-until-tablet",
+    head: [
+      { text: "Date reported" },
+      { text: "Risk level" },
+      { text: "Previous level" },
+      { text: "Change" },
+      { text: "Source" }
+    ],
+    rows: tableRows
+  }) }}
+  </div>
+{% else %}
+  <p class="govuk-body" data-testid="app-risk-history-table-empty">No assessments</p>
+{% endif %}

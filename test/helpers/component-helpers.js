@@ -32,11 +32,15 @@ Object.entries(filters).forEach(([name, filter]) => {
   nunjucksTestEnv.addFilter(name, filter)
 })
 
-export function renderComponent(componentName, params, callBlock) {
-  const macroPath = `${componentName}/macro.njk`
-  const macroName = `app${
+function toMacroName(componentName) {
+  return `app${
     componentName.charAt(0).toUpperCase() + camelCase(componentName.slice(1))
   }`
+}
+
+export function renderComponent(componentName, params, callBlock) {
+  const macroPath = `${componentName}/macro.njk`
+  const macroName = toMacroName(componentName)
   const macroParams = JSON.stringify(params, null, 2)
   let macroString = `{%- from "${macroPath}" import ${macroName} -%}`
 
@@ -47,4 +51,17 @@ export function renderComponent(componentName, params, callBlock) {
   }
 
   return load(nunjucksTestEnv.renderString(macroString, {}))
+}
+
+/**
+ * Renders a component macro the way a page does: params come from the render
+ * context rather than being inlined into the template source.
+ * @param {string} componentName
+ * @param {object} params
+ */
+export function renderComponentFromContext(componentName, params) {
+  const macroName = toMacroName(componentName)
+  const macroString = `{%- from "${componentName}/macro.njk" import ${macroName} -%}{{- ${macroName}(params) -}}`
+
+  return load(nunjucksTestEnv.renderString(macroString, { params }))
 }
