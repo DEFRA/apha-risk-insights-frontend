@@ -1,7 +1,8 @@
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/tag/macro.njk" import govukTag %}
 
-{% set titleHtml %}<a class="govuk-link" href="{{ params.href }}">{{ params.title }}</a>{% endset %}
+{% set isDetail = params.variant == "detail" %}
+{% set titleHtml %}{% if isDetail %}Latest assessment{% else %}<a class="govuk-link" href="{{ params.href }}">{{ params.title }}</a>{% endif %}{% endset %}
 
 {% set levelHtml %}
   <span class="app-risk-card__level-word">{{ params.levelLabel }}<span class="govuk-visually-hidden">, {{ params.levelNumber }} out of {{ params.levelMax }}</span></span>
@@ -20,6 +21,17 @@
   }) }}
 {% endset %}
 
+{% set changeTextHtml %}
+  {%- if params.tag.arrow -%}
+    <span class="app-risk-card__arrow app-risk-card__arrow--{{ params.tag.modifier }}" aria-hidden="true">{{ params.tag.arrow }}</span>
+  {% endif -%}
+  {{ params.tag.text }}
+  {%- if params.previousLevel %}
+  <span class="govuk-visually-hidden">,</span>
+  <span class="app-risk-card__previous">Previously {{ params.previousLevel }}</span>
+  {%- endif %}
+{% endset %}
+
 {% set dateHtml %}<time datetime="{{ params.dateTime }}">{{ params.dateText }}</time>{% endset %}
 
 {% set strainRows = [{
@@ -27,18 +39,28 @@
   value: { text: params.strain }
 }] if params.strain else [] %}
 
-{% set rows = strainRows.concat([
-  { key: { text: "Risk level" }, value: { html: levelHtml } },
+{% set riskLevelRow = { key: { text: "Risk level" }, value: { html: levelHtml } } %}
+{% set dateRow = { key: { text: "Date reported" if isDetail else "Reported" }, value: { html: dateHtml } } %}
+
+{% set detailRows = [
+  riskLevelRow,
+  { key: { text: "Change" }, value: { html: changeTextHtml } },
+  { key: { text: "Source" }, value: { text: params.source } },
+  dateRow
+] %}
+
+{% set defaultRows = strainRows.concat([
+  riskLevelRow,
   { key: { text: "Change" }, value: { html: tagHtml } },
   { key: { text: "Previous level" }, value: { text: params.previousText } },
-  { key: { text: "Reported" }, value: { html: dateHtml } }
+  dateRow
 ]) %}
 
-<div data-testid="app-risk-card">
+<div data-testid="app-risk-card"{% if isDetail %} class="app-risk-card--detail"{% endif %}>
   {{ govukSummaryList({
     card: {
       title: { html: titleHtml, headingLevel: params.headingLevel or 2 }
     },
-    rows: rows
+    rows: detailRows if isDetail else defaultRows
   }) }}
 </div>

@@ -38,12 +38,18 @@ const TAGS = {
  * `levelChange` throws, so a change to the API enums is noticed straight away.
  * Revisit this before production, for example by rendering a safe fallback.
  * @param {object} summary - a `RiskSummary` from the risk data source
+ * @param {{variant?: 'detail'}} [options] - `detail` adds the fields the
+ *   detail variant needs (`variant`, `source`, `previousLevel`)
  * @returns {object} display-ready params for `appRiskCard`
  */
-export const riskCardPresenter = ({ id, disease, strain, risk }) => {
+export const riskCardPresenter = (
+  { id, disease, strain, risk },
+  { variant } = {}
+) => {
   const level = LEVELS[risk.status]
   const tag = TAGS[risk.levelChange]
   const previousLevel = risk.previousStatus && LEVELS[risk.previousStatus]
+  const previousLabel = previousLevel ? previousLevel.label : null
 
   if (!level) {
     throw new Error(`Unknown risk status: ${risk.status}`)
@@ -57,7 +63,17 @@ export const riskCardPresenter = ({ id, disease, strain, risk }) => {
     throw new Error(`Unknown level change: ${risk.levelChange}`)
   }
 
+  const detailParams =
+    variant === 'detail'
+      ? {
+          variant,
+          source: risk.source,
+          previousLevel: previousLabel
+        }
+      : {}
+
   return {
+    ...detailParams,
     title: disease.name,
     href: `/risk/${riskKey({ id, disease })}`,
     strain,
@@ -66,7 +82,7 @@ export const riskCardPresenter = ({ id, disease, strain, risk }) => {
     levelMax: LEVEL_COUNT,
     levelKey: level.key,
     tag: { ...tag },
-    previousText: previousLevel ? previousLevel.label : NO_PREVIOUS_TEXT,
+    previousText: previousLabel ?? NO_PREVIOUS_TEXT,
     dateTime: risk.dateReported,
     dateText: formatDisplayDate(risk.dateReported)
   }

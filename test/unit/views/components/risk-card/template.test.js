@@ -182,4 +182,131 @@ describe('Risk card component', () => {
       expect($card('.govuk-summary-card__title').is('h3')).toBe(true)
     })
   })
+
+  describe('Detail variant', () => {
+    const detailParams = {
+      ...baseParams,
+      variant: 'detail',
+      source: 'APHA risk assessment',
+      previousLevel: 'Medium'
+    }
+    const renderDetailChange = (overrides = {}) =>
+      row(
+        renderComponent('risk-card', { ...detailParams, ...overrides }),
+        'Change'
+      )
+
+    test('Should use the fixed title as plain text, not a link', () => {
+      const $card = renderComponent('risk-card', detailParams)
+      const $title = $card('h2.govuk-summary-card__title')
+
+      expect($title.text().trim()).toBe('Latest assessment')
+      expect($title.find('a')).toHaveLength(0)
+    })
+
+    test('Should label the date row "Date reported"', () => {
+      const $card = renderComponent('risk-card', detailParams)
+      const $date = row($card, 'Date reported')
+
+      expect($date.find('time').attr('datetime')).toBe('2026-10-01T00:00:00Z')
+      expect($date.text().trim()).toBe('1 October 2026')
+      expect(row($card, 'Reported')).toHaveLength(0)
+    })
+
+    test('Should render Change as plain text, not a tag', () => {
+      const $change = renderDetailChange()
+
+      expect($change.find('.govuk-tag')).toHaveLength(0)
+      expect($change.text()).toContain('Deteriorating')
+    })
+
+    test('Should render a decorative coloured arrow before the word', () => {
+      const $change = renderDetailChange()
+      const $arrow = $change.find('[aria-hidden="true"]')
+
+      expect($arrow.text()).toBe('↑')
+      expect($arrow.hasClass('app-risk-card__arrow--red')).toBe(true)
+      expect($change.text().replace(/\s+/g, ' ').trim()).toMatch(
+        /^↑ Deteriorating/
+      )
+    })
+
+    test('Should render no arrow for undetermined', () => {
+      const $change = renderDetailChange({
+        tag: { text: 'Undetermined', modifier: 'grey' }
+      })
+
+      expect($change.find('[aria-hidden="true"]')).toHaveLength(0)
+      expect($change.text()).toContain('Undetermined')
+    })
+
+    test('Should render the source row', () => {
+      const $card = renderComponent('risk-card', detailParams)
+
+      expect(row($card, 'Source').text().trim()).toBe('APHA risk assessment')
+    })
+
+    test('Should render "Previously" under Change when there is a previous level', () => {
+      const $card = renderComponent('risk-card', detailParams)
+
+      expect(row($card, 'Change').text().replace(/\s+/g, ' ')).toContain(
+        'Previously Medium'
+      )
+      expect(row($card, 'Previous level')).toHaveLength(0)
+    })
+
+    test('Should omit the Strain row even when strain is supplied', () => {
+      const $card = renderComponent('risk-card', {
+        ...detailParams,
+        strain: 'H5N1'
+      })
+
+      expect(row($card, 'Strain')).toHaveLength(0)
+    })
+
+    test('Should put a visually hidden comma before "Previously" so screen readers pause', () => {
+      const $change = renderDetailChange()
+      const $comma = $change.find('.govuk-visually-hidden')
+
+      expect($comma.text()).toBe(',')
+      expect($comma.next().hasClass('app-risk-card__previous')).toBe(true)
+    })
+
+    test('Should omit the hidden comma when previousLevel is null', () => {
+      const $change = renderDetailChange({ previousLevel: null })
+
+      expect($change.find('.govuk-visually-hidden')).toHaveLength(0)
+    })
+
+    test('Should omit "Previously" when previousLevel is null', () => {
+      const $change = renderDetailChange({ previousLevel: null })
+
+      expect($change.text()).not.toContain('Previously')
+    })
+
+    test('Should still render the shared bars and level word', () => {
+      const $card = renderComponent('risk-card', detailParams)
+      const $bars = $card('[data-testid="app-risk-card-bars"]')
+
+      expect($bars.find('.app-risk-card__bar--filled')).toHaveLength(5)
+      expect($bars.hasClass('app-risk-card__bars--high')).toBe(true)
+      expect(row($card, 'Risk level').text()).toContain('High')
+    })
+
+    test('Should add a modifier class hook for equal height', () => {
+      const $card = renderComponent('risk-card', detailParams)
+
+      expect(
+        $card('[data-testid="app-risk-card"]').hasClass('app-risk-card--detail')
+      ).toBe(true)
+    })
+
+    test('Should not render a Source row or modifier in the default variant', () => {
+      const $card = renderComponent('risk-card', baseParams)
+
+      expect(row($card, 'Source')).toHaveLength(0)
+      expect($card('.app-risk-card--detail')).toHaveLength(0)
+      expect($card('h2.govuk-summary-card__title a')).toHaveLength(1)
+    })
+  })
 })
