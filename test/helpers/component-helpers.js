@@ -10,11 +10,15 @@ import * as globals from '#/plugins/template-renderer/globals/globals.js'
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 const nunjucksTestEnv = nunjucks.configure(
   [
-    '../node_modules/govuk-frontend/dist/',
+    path.normalize(
+      path.resolve(dirname, '../../node_modules/govuk-frontend/dist/')
+    ),
     path.normalize(path.resolve(dirname, '../../src/views')),
     path.normalize(path.resolve(dirname, '../../src/views/components'))
   ],
   {
+    autoescape: true,
+    throwOnUndefined: false,
     trimBlocks: true,
     lstripBlocks: true
   }
