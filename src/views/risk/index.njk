@@ -1,0 +1,21 @@
+{% extends 'common/layout.njk' %}
+{% from "components/risk-card/macro.njk" import appRiskCard %}
+
+{% block content %}
+  {{ appHeading({
+    text: heading
+  }) }}
+
+  {% for card in cards %}
+    {% if loop.index0 % 2 == 0 %}
+      <div class="govuk-grid-row">
+    {% endif %}
+        <div class="govuk-grid-column-one-half govuk-!-margin-bottom-6">
+          {{ appRiskCard(card) }}
+        </div>
+    {% if loop.index0 % 2 == 1 or loop.last %}
+      </div>
+    {% endif %}
+  {% endfor %}
+
+{% endblock %}

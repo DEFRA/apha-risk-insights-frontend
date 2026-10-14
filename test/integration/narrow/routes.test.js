@@ -1,4 +1,5 @@
 import { createServer } from '#/server.js'
+import { listRisks } from '#/data/risk-data-source.js'
 import { statusCodes } from '#/constants/status-codes.js'
 
 describe('#routes', () => {
@@ -31,6 +32,27 @@ describe('#routes', () => {
 
     expect(statusCode).toBe(statusCodes.ok)
     expect(result).toEqual(expect.stringContaining('About |'))
+  })
+
+  test('GET /risk renders a risk card for each disease', async () => {
+    const { items } = await listRisks()
+    const { result, statusCode } = await server.inject({
+      method: 'GET',
+      url: '/risk'
+    })
+
+    expect(statusCode).toBe(statusCodes.ok)
+    expect(result).toEqual(expect.stringContaining('Disease risk overview |'))
+    expect(result.match(/data-testid="app-risk-card"/g)).toHaveLength(
+      items.length
+    )
+    expect(result).toEqual(
+      expect.stringContaining('Highly Pathogenic Avian Influenza')
+    )
+    expect(result).toEqual(expect.stringContaining('H5N1'))
+    expect(result).toEqual(
+      expect.stringContaining('href="/risk/highly-pathogenic-avian-influenza"')
+    )
   })
 
   test('GET /health returns success', async () => {
