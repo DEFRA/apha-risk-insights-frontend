@@ -1,0 +1,44 @@
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+
+{% set titleHtml %}<a class="govuk-link" href="{{ params.href }}">{{ params.title }}</a>{% endset %}
+
+{% set levelHtml %}
+  <span class="app-risk-card__level-word">{{ params.levelLabel }}<span class="govuk-visually-hidden">, {{ params.levelNumber }} out of {{ params.levelMax }}</span></span>
+  <div class="app-risk-card__bars app-risk-card__bars--{{ params.levelKey }}"
+       aria-hidden="true" data-testid="app-risk-card-bars">
+    {% for step in range(1, params.levelMax + 1) %}
+      <span class="app-risk-card__bar{% if step <= params.levelNumber %} app-risk-card__bar--filled{% endif %}"></span>
+    {% endfor %}
+  </div>
+{% endset %}
+
+{% set tagHtml %}
+  {{ govukTag({
+    html: ('<span aria-hidden="true">' ~ (params.tag.arrow | escape) ~ '</span> ' if params.tag.arrow else '') ~ (params.tag.text | escape),
+    classes: "govuk-tag--" ~ params.tag.modifier
+  }) }}
+{% endset %}
+
+{% set dateHtml %}<time datetime="{{ params.dateTime }}">{{ params.dateText }}</time>{% endset %}
+
+{% set strainRows = [{
+  key: { text: "Strain" },
+  value: { text: params.strain }
+}] if params.strain else [] %}
+
+{% set rows = strainRows.concat([
+  { key: { text: "Risk level" }, value: { html: levelHtml } },
+  { key: { text: "Change" }, value: { html: tagHtml } },
+  { key: { text: "Previous level" }, value: { text: params.previousText } },
+  { key: { text: "Reported" }, value: { html: dateHtml } }
+]) %}
+
+<div data-testid="app-risk-card">
+  {{ govukSummaryList({
+    card: {
+      title: { html: titleHtml, headingLevel: params.headingLevel or 2 }
+    },
+    rows: rows
+  }) }}
+</div>

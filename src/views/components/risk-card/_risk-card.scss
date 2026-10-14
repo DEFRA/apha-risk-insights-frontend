@@ -1,0 +1,49 @@
+@use 'govuk-frontend' as *;
+
+// Only the level word and level bars are custom: GOV.UK Frontend has no
+// equivalent. The card, rows and tags use GOV.UK components.
+
+.app-risk-card__level-word {
+  @include govuk-font($size: 24, $weight: bold);
+
+  display: block;
+  margin-bottom: govuk-spacing(1);
+}
+
+.app-risk-card__bars {
+  display: flex;
+  gap: govuk-spacing(1);
+}
+
+// Empty bars: light tint and light border. Filled bars: dark inset outline,
+// so they differ from empty ones by more than hue.
+.app-risk-card__bar {
+  flex: 1;
+  height: govuk-spacing(2);
+  border: 1px solid govuk-colour('black', 'tint-80');
+  background-color: govuk-colour('black', 'tint-95');
+}
+
+.app-risk-card__bar--filled {
+  border-color: govuk-colour('black', 'tint-25');
+  box-shadow: inset 0 0 0 2px govuk-colour('black', 'tint-25');
+}
+
+@mixin bar-colour($name, $colour) {
+  .app-risk-card__bars--#{$name} .app-risk-card__bar--filled {
+    background-color: $colour;
+  }
+}
+
+@include bar-colour('negligible', govuk-colour('black', 'tint-25'));
+@include bar-colour('very-low', govuk-colour('green'));
+@include bar-colour('low', govuk-colour('yellow'));
+@include bar-colour('medium', govuk-colour('orange'));
+@include bar-colour('high', govuk-colour('red'));
+
+@media (forced-colors: active) {
+  .app-risk-card__bar--filled {
+    forced-color-adjust: none;
+    background-color: CanvasText;
+  }
+}
