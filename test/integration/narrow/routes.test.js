@@ -14,24 +14,49 @@ describe('#routes', () => {
     await server.stop({ timeout: 0 })
   })
 
-  test('GET / renders the home page', async () => {
+  test('GET / renders the home page with a link to the risk overview', async () => {
     const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/'
     })
 
     expect(statusCode).toBe(statusCodes.ok)
-    expect(result).toEqual(expect.stringContaining('Home |'))
+    expect(result).toEqual(
+      expect.stringContaining('APHA-risk insights frontend |')
+    )
+    expect(result).toEqual(
+      expect.stringContaining('>APHA-risk insights frontend</h1>')
+    )
+    expect(result).toEqual(
+      expect.stringContaining(
+        '<a class="govuk-link" href="/risk">Risk overview</a>'
+      )
+    )
   })
 
-  test('GET /about renders the about page', async () => {
-    const { result, statusCode } = await server.inject({
+  test('GET / marks Home as the current navigation item', async () => {
+    const { result } = await server.inject({ method: 'GET', url: '/' })
+
+    expect(result).toMatch(
+      /govuk-service-navigation__item--active[\s\S]*?aria-current="page"[\s\S]*?Home/
+    )
+  })
+
+  test('GET /risk marks Risk overview as the current navigation item', async () => {
+    const { result } = await server.inject({ method: 'GET', url: '/risk' })
+
+    expect(result).toMatch(
+      /href="\/risk"[^>]*aria-current="page"|aria-current="page"[^>]*href="\/risk"/
+    )
+  })
+
+  test('GET /about is no longer available', async () => {
+    const { statusCode } = await server.inject({
       method: 'GET',
       url: '/about'
     })
 
-    expect(statusCode).toBe(statusCodes.ok)
-    expect(result).toEqual(expect.stringContaining('About |'))
+    expect(statusCode).toBe(statusCodes.notFound)
   })
 
   test('GET /risk renders a risk card for each disease', async () => {
