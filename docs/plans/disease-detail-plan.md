@@ -33,6 +33,7 @@ Findings from comparing the mock with the existing `riskCard` (`src/views/compon
 | 13  | Phase banner "ALPHA"                                                 | Not in `common/layout.njk`                                                                       | Out of scope (Q12). Flag for a separate change                                                                                                                                   |
 | 14  | Two bordered cards, equal height                                     | `govukSummaryList` card (`summary-list` component) is bordered                                   | Use the summary card for both. Equal height via flex on the row (a small SCSS rule, since GOV.UK grid does not do equal height)                                                  |
 | 15  | Chart dot colours: red for High, orange for Medium                   | Bars in `riskCard` use the same colours                                                          | Reuse the same level colour map (`LEVELS` in the presenter) so bars, dots and tags agree. Dots also have a dark outline and a date label, so level is not read from colour alone |
+| 16  | Previous level shown as a tag                                        | n/a                                                                                              | Previous level is a plain word, with "None" in secondary text. The tag is reserved for the current level, to reduce visual noise, and this follows the Table specification       |
 
 Confirmed as-is from the mock: H1 typography, GOV.UK header and service navigation, footer, the five-segment bars, the table columns (Date reported, Risk level, Previous level, Change, Source), and the "None" previous value in grey.
 
@@ -124,7 +125,7 @@ The page `risk/detail.njk` takes one view model. Any disease fills the same shap
 - Previous level: level word, or grey "None" when `previousStatus` is null.
 - Change: arrow (aria-hidden) plus word, in plain text, matching the card. Undetermined has no arrow.
 - Caption: visually hidden "Assessment history for <disease name>".
-- Responsive: `govuk-table` is horizontally scrollable on small screens inside GOV.UK's own pattern, so no custom responsive table.
+- Responsive: `govuk-table` does not scroll by itself in GOV.UK Frontend 6.4.0 (no wrapper, no overflow rule), so the table sits in a focusable, labelled scroll region (`role="region"`, `tabindex="0"`, `aria-label` equal to the caption, `overflow-x: auto`) with small text until tablet (`govuk-table--small-text-until-tablet`). Without it the HPAI table is about 540px wide and the whole page scrolls sideways at 320px.
 
 ## Work packages (for agents)
 
@@ -157,7 +158,7 @@ Run WP1 first. WP2, WP3 and WP4 can run in parallel. WP5 needs WP2 to WP4. WP6 i
 - The chart has a text alternative (`aria-describedby`), and the table is the full data.
 - Plotly is static: no hover-only information, no modebar, no keyboard traps.
 - Back link is a link, keyboard reachable, and has visible text.
-- Reflow at 320px with no horizontal page scroll (the table is the only element allowed to scroll, per GOV.UK).
+- Reflow at 320px with no horizontal page scroll (WCAG 1.4.10). The table is the only element allowed to scroll, inside a keyboard-focusable region with an accessible name and a visible focus style.
 - Works with JavaScript disabled: the table carries the full information.
 
 ## GOV.UK grounding
@@ -182,6 +183,11 @@ The chart library choice is a dependency decision, so it is ADR-worthy under the
 - The breakpoint for thinning month ticks is the GOV.UK tablet breakpoint (641px), to match the two-column layout.
 - `staticPlot: true` (no hover, no modebar) is the accessibility default. Change it only with a reason, because it removes interactivity.
 - Plotly does not need a CSP change. This is unverified until the WP3 spike.
+
+## Decisions
+
+- Unknown status, previous status or level change values, and invalid dates, throw in the presenters. The page returns 500 rather than showing partial or incorrect risk data. This is deliberate for a risk service, and is to be revisited when the API data source lands.
+- The change arrow uses a shared, component-neutral `.app-change-arrow` class (with `--red`, `--green`, `--grey`) used by both the risk card detail variant and the history table.
 
 ## Open questions
 
