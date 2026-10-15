@@ -47,3 +47,38 @@
     background-color: CanvasText;
   }
 }
+
+// Detail variant: Change is plain text with a decorative arrow. The word
+// carries the meaning. Arrows use the same hue families as the default
+// variant's tags and have at least 3:1 contrast on white.
+.app-risk-card__arrow {
+  @include govuk-font($size: 19, $weight: bold);
+}
+
+.app-risk-card__arrow--red {
+  color: govuk-colour('red');
+}
+
+.app-risk-card__arrow--green {
+  color: govuk-colour('green');
+}
+
+.app-risk-card__arrow--grey {
+  color: govuk-functional-colour('secondary-text');
+}
+
+.app-risk-card__previous {
+  display: block;
+  color: govuk-functional-colour('secondary-text');
+}
+
+// Equal height hook: a flex row parent can stretch the card to its siblings.
+.app-risk-card--detail {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .govuk-summary-card {
+    flex: 1;
+  }
+}

@@ -142,4 +142,35 @@ describe('#riskCardPresenter', () => {
       dateText: '1 October 2026'
     })
   })
+
+  describe('detail variant', () => {
+    test('Should add variant, source and previous level', () => {
+      const params = riskCardPresenter(buildSummary(), { variant: 'detail' })
+
+      expect(params).toMatchObject({
+        variant: 'detail',
+        source: 'Sample source',
+        previousLevel: 'Medium'
+      })
+    })
+
+    test('Should give a null previous level when previousStatus is null', () => {
+      const params = riskCardPresenter(
+        buildWithRisk({ previousStatus: null }),
+        {
+          variant: 'detail'
+        }
+      )
+
+      expect(params.previousLevel).toBeNull()
+    })
+
+    test('Should leave the default output without detail fields', () => {
+      const params = riskCardPresenter(buildSummary())
+
+      expect(params).not.toHaveProperty('variant')
+      expect(params).not.toHaveProperty('source')
+      expect(params).not.toHaveProperty('previousLevel')
+    })
+  })
 })
