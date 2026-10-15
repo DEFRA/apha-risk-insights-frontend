@@ -1,0 +1,25 @@
+@use 'govuk-frontend' as *;
+
+// Equal height hook: a flex row parent can stretch the card to its siblings.
+.app-risk-history-chart {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .govuk-summary-card {
+    flex: 1;
+  }
+}
+
+.app-risk-history-chart__container {
+  width: 100%;
+}
+
+// The chart deliberately keeps its own white background and dark text in
+// forced colours, so the line, markers and labels stay readable. The history
+// table is the accessible fallback.
+@media (forced-colors: active) {
+  .app-risk-history-chart__container {
+    forced-color-adjust: none;
+  }
+}

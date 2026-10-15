@@ -122,7 +122,7 @@ describe('#routes', () => {
       expect(statusCode).toBe(statusCodes.ok)
       expect($('h1').text().trim()).toBe(HPAI_NAME)
       expect(result).toContain('Latest assessment')
-      expect($('h2.govuk-heading-m').text()).toContain('Assessment history')
+      expect($('h2.govuk-heading-m').text().trim()).toBe('Assessment history')
     })
 
     test('has a back link to the risk overview', async () => {
@@ -156,14 +156,59 @@ describe('#routes', () => {
       expect(left.find('.app-risk-card--detail').length).toBeGreaterThan(0)
     })
 
-    test('leaves the right column empty and loads no chart script', async () => {
-      const { $, result } = await getHpaiPage()
-      const right = $(COLUMN_SELECTOR).last()
+    test('has exactly two columns in the card and chart row', async () => {
+      const { $ } = await getHpaiPage()
 
-      expect(right.children()).toHaveLength(0)
-      expect(right.text().trim()).toBe('')
-      expect(result).not.toMatch(/risk-history-chart/)
-      expect($('script[src*="chart"], script[src*="plotly"]')).toHaveLength(0)
+      expect($('.app-disease-detail__row').children()).toHaveLength(2)
+      expect($(COLUMN_SELECTOR)).toHaveLength(2)
+    })
+
+    test('puts the risk history chart in the right column', async () => {
+      const { $ } = await getHpaiPage()
+      const right = $(COLUMN_SELECTOR).last()
+      const container = right.find('[data-risk-history-chart]')
+
+      expect(right.find('.app-risk-history-chart')).toHaveLength(1)
+      expect(container.attr('role')).toBe('img')
+      expect(right.find('.govuk-summary-card__title').text().trim()).toBe(
+        'Risk level over time'
+      )
+      expect(
+        right.find('#app-risk-history-chart-description').text().trim()
+      ).toBe(
+        'Risk level changed from High to Medium on 15 June 2026 and back to High on 1 October 2026. The full history is in the table below.'
+      )
+    })
+
+    test('embeds the chart data and loads the chart script from the app', async () => {
+      const { $ } = await getHpaiPage()
+      const data = $(
+        'script[type="application/json"][data-risk-history-chart-data]'
+      )
+      const chartScript = $(
+        'script[type="module"][src$="src/client/javascripts/risk-history-chart.js"]'
+      )
+
+      expect(JSON.parse(data.text()).spec.data.length).toBeGreaterThan(0)
+      expect(chartScript).toHaveLength(1)
+      expect(chartScript.attr('src')).toMatch(/^\/public\//)
+      expect($('[id="plotly.js-style-global"].no-inline-styles')).toHaveLength(
+        1
+      )
+    })
+
+    test('does not change the content security policy', async () => {
+      const { headers } = await get(HPAI_URL)
+      const policy = headers['content-security-policy']
+
+      expect(policy).toContain("style-src 'self'")
+      expect(policy).not.toMatch(/unsafe-inline|unsafe-eval/)
+    })
+
+    test('does not load the chart script on other pages', async () => {
+      const { result } = await getPage('/risk')
+
+      expect(result).not.toContain('risk-history-chart')
     })
 
     test('returns the error page for an unknown slug', async () => {
