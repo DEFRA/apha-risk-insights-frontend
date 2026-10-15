@@ -1,31 +1,65 @@
 {
-  "_comment": "SAMPLE DATA ONLY. Not real assessments. Shaped as RiskSummary in apha-risk-insights-backend/docs/openapi/v1.yaml (0.1.0). Replaced by the API data source later (see adr/accessing-risk-data-through-repository.adr.md).",
+  "_comment": "SAMPLE DATA ONLY. Not real assessments. Items are shaped as RiskDetail (risk is the current assessment; riskHistory holds past assessments only, newest first, and excludes the current assessment) per the backend contract GET /risks/{riskId} in apha-risk-insights-backend/docs/openapi/v1.yaml (0.1.0); listRisks() returns RiskSummary items. Replaced by the API data source later (see adr/accessing-risk-data-through-repository.adr.md).",
   "items": [
     {
       "id": "5b0f7a52-3c1e-4d6a-9a47-0e8d2f1c6b01",
-      "disease": { "code": "AHS", "name": "African Horse Sickness" },
+      "disease": {
+        "code": "AHS",
+        "name": "African Horse Sickness"
+      },
       "risk": {
         "status": "negligible",
-        "previousStatus": null,
-        "levelChange": "undetermined",
+        "previousStatus": "negligible",
+        "levelChange": "no change",
         "source": "Sample data",
         "dateReported": "2026-07-22T00:00:00Z"
-      }
+      },
+      "riskHistory": [
+        {
+          "status": "negligible",
+          "previousStatus": null,
+          "levelChange": "undetermined",
+          "source": "Sample data",
+          "dateReported": "2026-03-18T00:00:00Z"
+        }
+      ]
     },
     {
       "id": "5b0f7a52-3c1e-4d6a-9a47-0e8d2f1c6b02",
-      "disease": { "code": "ASF", "name": "African Swine Fever" },
+      "disease": {
+        "code": "ASF",
+        "name": "African Swine Fever"
+      },
       "risk": {
         "status": "medium",
         "previousStatus": "medium",
         "levelChange": "no change",
         "source": "Sample data",
         "dateReported": "2026-08-28T00:00:00Z"
-      }
+      },
+      "riskHistory": [
+        {
+          "status": "medium",
+          "previousStatus": "low",
+          "levelChange": "deteriorating",
+          "source": "Sample data",
+          "dateReported": "2026-05-20T00:00:00Z"
+        },
+        {
+          "status": "low",
+          "previousStatus": null,
+          "levelChange": "undetermined",
+          "source": "Sample data",
+          "dateReported": "2026-02-11T00:00:00Z"
+        }
+      ]
     },
     {
       "id": "5b0f7a52-3c1e-4d6a-9a47-0e8d2f1c6b03",
-      "disease": { "code": "BTV", "name": "Bluetongue" },
+      "disease": {
+        "code": "BTV",
+        "name": "Bluetongue"
+      },
       "strain": "BTV-3",
       "risk": {
         "status": "low",
@@ -33,18 +67,53 @@
         "levelChange": "improving",
         "source": "Sample data",
         "dateReported": "2026-09-30T00:00:00Z"
-      }
+      },
+      "riskHistory": [
+        {
+          "status": "high",
+          "previousStatus": "medium",
+          "levelChange": "deteriorating",
+          "source": "Sample data",
+          "dateReported": "2026-05-12T00:00:00Z"
+        },
+        {
+          "status": "medium",
+          "previousStatus": null,
+          "levelChange": "undetermined",
+          "source": "Sample data",
+          "dateReported": "2026-01-26T00:00:00Z"
+        }
+      ]
     },
     {
       "id": "5b0f7a52-3c1e-4d6a-9a47-0e8d2f1c6b04",
-      "disease": { "code": "FMD", "name": "Foot and Mouth Disease" },
+      "disease": {
+        "code": "FMD",
+        "name": "Foot and Mouth Disease"
+      },
       "risk": {
         "status": "medium",
         "previousStatus": "low",
         "levelChange": "deteriorating",
         "source": "Sample data",
         "dateReported": "2026-09-14T00:00:00Z"
-      }
+      },
+      "riskHistory": [
+        {
+          "status": "low",
+          "previousStatus": "very low",
+          "levelChange": "deteriorating",
+          "source": "Sample data",
+          "dateReported": "2026-06-25T00:00:00Z"
+        },
+        {
+          "status": "very low",
+          "previousStatus": null,
+          "levelChange": "undetermined",
+          "source": "Sample data",
+          "dateReported": "2026-04-03T00:00:00Z"
+        }
+      ]
     },
     {
       "id": "5b0f7a52-3c1e-4d6a-9a47-0e8d2f1c6b05",
@@ -57,9 +126,25 @@
         "status": "high",
         "previousStatus": "medium",
         "levelChange": "deteriorating",
-        "source": "Sample data",
+        "source": "APHA risk assessment",
         "dateReported": "2026-10-01T00:00:00Z"
-      }
+      },
+      "riskHistory": [
+        {
+          "status": "medium",
+          "previousStatus": "high",
+          "levelChange": "improving",
+          "source": "APHA risk assessment",
+          "dateReported": "2026-06-15T00:00:00Z"
+        },
+        {
+          "status": "high",
+          "previousStatus": null,
+          "levelChange": "undetermined",
+          "source": "APHA risk assessment",
+          "dateReported": "2026-01-09T00:00:00Z"
+        }
+      ]
     }
   ]
 }
