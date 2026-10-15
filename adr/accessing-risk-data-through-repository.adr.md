@@ -36,6 +36,11 @@ Negative:
 - A static file cannot show real API behaviour such as authentication failures, `429` rate limits or `500` errors. The `api` implementation will need its own error handling and tests.
 - The static file is sample data until real data is supplied. It must not be treated as real assessments.
 
+Notes:
+
+- The data source also exposes `getRiskBySlug(slug)` alongside the four listed methods. It resolves the slug to a `riskId` via `listRisks()`, then calls `getRisk`.
+- When the API-backed data source replaces the fixture, `getRiskBySlug` must not search only page 1 of `listRisks()`. It must pass a disease-name filter (`q`) or walk all pages.
+
 Neutral:
 
 - The backend API has no authentication today (`security: []`), so the `api` implementation does not need credentials yet. This must be revisited if that changes.
