@@ -131,13 +131,15 @@ The page `risk/detail.njk` takes one view model. Any disease fills the same shap
 
 Run WP1 first. WP2, WP3 and WP4 can run in parallel. WP5 needs WP2 to WP4. WP6 is last.
 
+**Reordered (user decision):** WP5 is built before WP3. WP5 ships without the chart, with the right-hand column of the two-column row left empty (an empty `govuk-grid-column-one-half`, no placeholder text) so the layout does not move when the chart arrives. WP3 then adds the chart presenter, component, client module, Vite entry, the `bodyEnd` script and the `chart` view model key, and places the chart in that right column.
+
 **WP0. Prerequisite.** The risk-card PR (`risk-card-plan.md`) is merged to `main`. Branch `feat/disease-detail` from `main`. Add `plotly.js-basic-dist-min` as a dependency at version 4.1.1 (pinned, not a range). 4.1.2 was rejected: under two weeks old on 2026-10-14.
 
 **WP1. Data.** TDD. Extend the fixture with `riskHistory` for each disease (Q10). Add `getRiskBySlug`. Tests: slug lookup, not-found returns `undefined`, `riskHistory` excludes the current assessment and is newest first (R2), contract-shape check of `RiskAssessment` fields (`status`, `previousStatus`, `levelChange`, `source`, `dateReported`). Files: `src/data/risk-sample-data.json`, `src/data/risk-data-source.js`, `test/unit/data/risk-data-source.test.js`.
 
 **WP2. Card detail variant.** TDD. Add `variant: 'detail'` to `riskCard`: fixed title "Latest assessment", plain-text Change with decorative arrow, Source row, "Date reported", optional "Previously" line. Keep the default variant unchanged (existing tests must still pass). Files: `src/views/components/risk-card/*`, `test/unit/views/components/risk-card/template.test.js`.
 
-**WP3. Chart.** TDD, plus a browser spike first.
+**WP3. Chart.** Runs after WP5 (reordered). It also adds the `chart` key to the disease detail presenter, the `bodyEnd` script block to `risk/detail.njk`, and places the chart component in the empty right-hand column. TDD, plus a browser spike first.
 
 - Spike, before tests: build a throwaway page that loads Plotly from a Vite entry under the app's CSP, draws the sample HPAI spec, and checks the console for CSP violations. Record the result in the PR description. If there is a violation, stop and report it for a CSP decision. Do not change the CSP without that decision.
 - Presenter (`risk-history-chart-presenter.js`): pure data. Tests for: 12-month window, single point, two points, clamped start, step trace, y tick mapping, date labels, year annotations, and the `aria-describedby` sentence.
@@ -147,7 +149,7 @@ Run WP1 first. WP2, WP3 and WP4 can run in parallel. WP5 needs WP2 to WP4. WP6 i
 
 **WP4. Table.** TDD. `appRiskHistoryTable` with `govukTable` and tags, the "None" previous value, undetermined without arrow, visually hidden caption. Files: `src/views/components/risk-history-table/*`, `test/unit/views/components/risk-history-table/template.test.js`.
 
-**WP5. Page, presenter, route.** TDD. `disease-detail-presenter.js` (pure), `src/views/risk/detail.njk` with `govukBackLink` in `beforeContent`, two-column row from 641px with equal-height cards, table below, chart entry in `bodyEnd`. Route `GET /risk/{slug}` in `src/routes/risk/risk-routes.js`, registered via `src/routes/routes.js`. Narrow integration test in `test/integration/narrow/routes.test.js` for 200 on a known slug and 404 on an unknown one. Add SCSS to `src/client/stylesheets/components/_index.scss`. Stylelint must pass.
+**WP5. Page, presenter, route.** TDD. `disease-detail-presenter.js` (pure), `src/views/risk/detail.njk` with `govukBackLink` in `beforeContent`, two-column row from 641px with equal-height columns, table below. Shipped without the chart: no `chart` key, no `bodyEnd` script, and the right-hand column is empty (WP3 fills it). Route `GET /risk/{slug}` in `src/routes/risk/risk-routes.js`, registered via `src/routes/routes.js`. Narrow integration test in `test/integration/narrow/routes.test.js` for 200 on a known slug and 404 on an unknown one. Add SCSS to `src/client/stylesheets/components/_index.scss`. Stylelint must pass.
 
 **WP6. Verification.** `npm run dev`, open `/risk/highly-pathogenic-avian-influenza` and compare to the mock. Check 320px width, 400% zoom, keyboard only, and a screen reader pass (announce the chart description and the table). Check with JavaScript disabled that the table gives the full information. Ask `defra-accessibility-advisor` to review against WCAG 2.2 AA and the GOV.UK patterns above. Then `defra-code-reviewer`. Run the pre-push checks.
 
