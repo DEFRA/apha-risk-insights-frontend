@@ -1,0 +1,28 @@
+{% extends 'common/layout.njk' %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "components/risk-card/macro.njk" import appRiskCard %}
+{% from "components/risk-history-table/macro.njk" import appRiskHistoryTable %}
+
+{% block beforeContent %}
+  {{ govukBackLink(backLink) }}
+{% endblock %}
+
+{% block content %}
+  {{ appHeading({
+    text: heading
+  }) }}
+
+  <div class="govuk-grid-row app-disease-detail__row">
+    <div class="govuk-grid-column-one-half">
+      {{ appRiskCard(latest) }}
+    </div>
+    <div class="govuk-grid-column-one-half"></div>
+  </div>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <h2 class="govuk-heading-m">Assessment history</h2>
+      {{ appRiskHistoryTable(table) }}
+    </div>
+  </div>
+{% endblock %}

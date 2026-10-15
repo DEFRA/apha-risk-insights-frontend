@@ -1,0 +1,10 @@
+@use 'govuk-frontend' as *;
+
+// From tablet the two columns form an equal-height flex row, so the card's
+// `app-risk-card--detail` hook can stretch to the height of its sibling.
+// Below tablet the columns stack as normal.
+@include govuk-media-query($from: tablet) {
+  .app-disease-detail__row {
+    display: flex;
+  }
+}
