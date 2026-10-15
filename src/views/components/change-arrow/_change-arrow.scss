@@ -1,0 +1,20 @@
+@use 'govuk-frontend' as *;
+
+// Decorative arrow shown before a level change word (risk card detail variant
+// and risk history table). The word carries the meaning. Colours use the same
+// hue families as the tags and have at least 3:1 contrast on white.
+.app-change-arrow {
+  @include govuk-font($size: 19, $weight: bold);
+}
+
+.app-change-arrow--red {
+  color: govuk-colour('red');
+}
+
+.app-change-arrow--green {
+  color: govuk-colour('green');
+}
+
+.app-change-arrow--grey {
+  color: govuk-functional-colour('secondary-text');
+}

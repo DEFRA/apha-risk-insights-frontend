@@ -225,7 +225,7 @@ describe('Risk card component', () => {
       const $arrow = $change.find('[aria-hidden="true"]')
 
       expect($arrow.text()).toBe('↑')
-      expect($arrow.hasClass('app-risk-card__arrow--red')).toBe(true)
+      expect($arrow.hasClass('app-change-arrow--red')).toBe(true)
       expect($change.text().replace(/\s+/g, ' ').trim()).toMatch(
         /^↑ Deteriorating/
       )
