@@ -4,16 +4,23 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_apha-risk-insights-frontend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_apha-risk-insights-frontend)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_apha-risk-insights-frontend&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DEFRA_apha-risk-insights-frontend)
 
-Core delivery platform Node.js Frontend Template.
+Node.js frontend for APHA Risk Insights, a [Hapi](https://hapi.dev) server-rendered service built on the
+[GOV.UK Design System](https://design-system.service.gov.uk) for the Defra core delivery platform (CDP).
 
+- [Overview](#overview)
+- [Architecture](#architecture)
 - [Requirements](#requirements)
   - [Node.js](#nodejs)
+- [Configuration](#configuration)
 - [Server-side Caching](#server-side-caching)
 - [Redis](#redis)
+- [Proxy](#proxy)
 - [Local Development](#local-development)
   - [Setup](#setup)
+  - [Git hooks](#git-hooks)
   - [Development](#development)
   - [Production](#production)
+  - [Testing and linting](#testing-and-linting)
   - [Npm scripts](#npm-scripts)
   - [Update dependencies](#update-dependencies)
   - [Formatting](#formatting)
@@ -24,20 +31,51 @@ Core delivery platform Node.js Frontend Template.
   - [Docker Compose](#docker-compose)
   - [Dependabot](#dependabot)
   - [SonarCloud](#sonarcloud)
+- [Troubleshooting](#troubleshooting)
+- [Further documentation](#further-documentation)
 - [Licence](#licence)
   - [About the licence](#about-the-licence)
 
-## Requirements
+## Overview
 
-### Node.js
+The service lists diseases with risk assessments and shows a detail page for each, including a risk history chart and
+table. Risk data currently comes from static sample data (`src/data/risk-sample-data.json`), not real assessments.
 
-Please install Node Version Manager [nvm](https://github.com/creationix/nvm)
+| Route          | Purpose                           |
+| -------------- | --------------------------------- |
+| `/`            | Home page                         |
+| `/risk`        | Risk list                         |
+| `/risk/{slug}` | Disease risk detail               |
+| `/health`      | Health check used by the platform |
 
-To use the correct version of Node.js for this application, via nvm:
+## Architecture
+
+The code uses a flat `src` layout organised by domain (see [ADR](./adr/adopting-flat-src-layout.adr.md)):
+
+| Path             | Responsibility                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------ |
+| `src/index.js`   | Entry point: starts the server and handles unhandled errors                          |
+| `src/server.js`  | Creates the Hapi server and registers plugins and routes                             |
+| `src/config`     | [convict](https://github.com/mozilla/node-convict) configuration, driven by env vars |
+| `src/plugins`    | Hapi plugins: router, templating, sessions, CSP, logging, tracing, static files      |
+| `src/routes`     | Route definitions and handlers (`home`, `risk`, health)                              |
+| `src/presenters` | Turn data into view models for templates                                             |
+| `src/data`       | Risk data source (repository pattern, swappable for a backend API)                   |
+| `src/views`      | Nunjucks templates                                                                   |
+| `src/client`     | Frontend JavaScript and SCSS, built with Vite into `.public`                         |
+| `src/utils`      | Logging, caching, errors and helpers                                                 |
+| `test`           | Shared test helpers (imported as `#test/*`)                                          |
+
+Request flow: route handler -> data source (`src/data`) -> presenter -> Nunjucks view. Key dependencies: Hapi, Nunjucks,
+govuk-frontend, Plotly (risk history chart), convict, pino, Catbox (memory/Redis), Vite and Vitest.
+
+## Configuration
+
+All configuration is read from environment variables in [src/config/config.js](./src/config/config.js). Copy
+[.env.example](./.env.example) to `.env` for local development; `npm run dev` loads it automatically if present.
 
 ```bash
-cd apha-risk-insights-frontend
-nvm use
+cp .env.example .env
 ```
 
 ## Server-side Caching
@@ -103,6 +141,15 @@ To mimic the application running in `production` mode locally run:
 
 ```bash
 npm start
+```
+
+### Testing and linting
+
+```bash
+npm test          # vitest with coverage
+npm run test:watch
+npm run lint      # eslint and stylelint
+npm run format:check
 ```
 
 ### Npm scripts
@@ -177,7 +224,6 @@ A local environment with:
 - Redis
 - MongoDB
 - This service.
-- A commented out backend example.
 
 ```bash
 docker compose up --build -d
@@ -191,6 +237,22 @@ the [.github/example.dependabot.yml](.github/example.dependabot.yml) to `.github
 ### SonarCloud
 
 Instructions for setting up SonarCloud can be found in [sonar-project.properties](./sonar-project.properties).
+
+## Troubleshooting
+
+- **Wrong Node.js version**: run `nvm use` in the repository root. The service requires Node.js 24 or later.
+- **Port 3000 already in use**: set `PORT` in `.env` or stop the other process.
+- **Logger errors on start**: leave `LOG_REDACT` unset locally; an empty value breaks the logger.
+- **Redis connection errors**: locally use `SESSION_CACHE_ENGINE=memory`, or start Redis with `docker compose up redis`.
+- **Missing styles or scripts**: assets are built by Vite; `npm start` builds them automatically via `prestart`, or run
+  `npm run build:frontend`.
+- **Apple Silicon Docker issues**: add `--platform linux/amd64` to the build or run command.
+
+## Further documentation
+
+- [Architecture decision records](./adr)
+- [Disease detail plan](./docs/plans/disease-detail-plan.md)
+- [Defra CDP documentation](https://portal.cdp-int.defra.cloud/documentation)
 
 ## Licence
 
