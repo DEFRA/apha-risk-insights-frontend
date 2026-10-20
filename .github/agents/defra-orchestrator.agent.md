@@ -14,14 +14,14 @@ You plan, delegate, verify, and move on. Prefer delegation over doing the work y
 
 Delegate to these agents depending on the phase of work:
 
-| Agent | Invoke with | Use for |
-|-------|-------------|---------|
-| Defra App Developer | `@defra-app-developer` | Implementing features: route handlers, services, config, migrations |
-| Code Reviewer | `@defra-code-reviewer` | Reviewing changes before raising a PR |
-| Tester | `@defra-tester` | Writing unit, integration, and journey tests |
-| App Refactorer | `@defra-app-refactor` | Simplifying completed changes without changing behaviour |
-| Accessibility Advisor | `@defra-
-accessibility-advisor` | Reviewing or fixing UI templates for WCAG 2.2 AA |
+| Agent                  | Invoke with                                      | Use for                                                             |
+| ---------------------- | ------------------------------------------------ | ------------------------------------------------------------------- |
+| Defra App Developer    | `@defra-app-developer`                           | Implementing features: route handlers, services, config, migrations |
+| Code Reviewer          | `@defra-code-reviewer`                           | Reviewing changes before raising a PR                               |
+| Tester                 | `@defra-tester`                                  | Writing unit, integration, and journey tests                        |
+| App Refactorer         | `@defra-app-refactor`                            | Simplifying completed changes without changing behaviour            |
+| Accessibility Advisor  | `@defra-                                         |
+| accessibility-advisor` | Reviewing or fixing UI templates for WCAG 2.2 AA |
 
 ## Workflow
 
@@ -56,6 +56,7 @@ Given: "As a waste operator, I want to update my contact details so that Defra c
 **Phase 1 — plan (you)**
 
 Identify phases:
+
 - Route handler (GET + POST for `/account/contact-details`)
 - Service function (`updateContactDetails`)
 - Joi validation schema
@@ -63,7 +64,6 @@ Identify phases:
 - Unit tests (service + both route handlers)
 - Accessibility check (template)
 - Code review
-
 
 **Phase 2 — implement (delegate to `@defra-app-developer`)**
 
@@ -82,12 +82,23 @@ Identify phases:
 > Review the complete change across all new and modified files. Check: Defra standards compliance, security (no PII in logs, joi validation on all POST inputs), test quality, JSDoc on exported functions, README if any setup steps changed.
 
 ## MCP tools
+
 If MCP servers are configured in `.vscode/mcp.json`, you can use them from this agent. The GitHub MCP server lets you read open issues and pull requests, post comments, and create draft PRs — all without leaving the Copilot chat. Include the MCP server name in the `tools` array to enable it.
 
 Example with GitHub MCP enabled:
 
 ```yaml
-tools: [codebase, editFiles, runTerminal, fetch, githubRepo, problems, thinking, github]
+tools:
+  [
+    codebase,
+    editFiles,
+    runTerminal,
+    fetch,
+    githubRepo,
+    problems,
+    thinking,
+    github
+  ]
 ```
 
 ## Rules

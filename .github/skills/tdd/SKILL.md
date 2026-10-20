@@ -56,11 +56,13 @@ Once scenarios are identified, write them to a **temporary markdown file** (e.g.
 # Test scenarios: <feature/bugfix name>
 
 ## Unhappy paths / errors
+
 - Rejects invalid input with a validation error
 - Handles downstream service failure without corrupting state
 - ...
 
 ## Happy paths
+
 - Valid input saves a record
 - ...
 ```
@@ -71,7 +73,7 @@ Play this file back to the user with `ask_user` or in your response, and ask if 
 
 For each confirmed scenario, in order:
 
-1. **Decide test type.** Unit test if it's pure logic/isolated behavior. Narrow integration test if it's about a specific interface boundary (DB, HTTP, external call) — mock only what's *outside* that immediate module.
+1. **Decide test type.** Unit test if it's pure logic/isolated behavior. Narrow integration test if it's about a specific interface boundary (DB, HTTP, external call) — mock only what's _outside_ that immediate module.
 2. **Write one focused failing test** for the smallest next slice of behavior. One assertion/behavior focus per test where practical.
 3. **Run the test and confirm it fails (red).** Always run tests in Docker using the `monitor-test-output` skill (tests run in watch mode inside a container) — never run tests directly on the host. Never skip this — if it unexpectedly passes, stop and investigate before continuing (the test may be wrong or the behavior may already exist).
 4. **Write the minimal implementation code** to make that test pass. Do not add unrelated behavior "while you're in there".

@@ -32,6 +32,7 @@ Follow the testing pyramid — find most defects at the lowest test level:
 Use descriptive names that explain the behaviour:
 
 ✅ Good:
+
 ```
 describe('calculateDiscount', () => {
   it('should return 10% discount when order exceeds 100 pounds', () => {})
@@ -41,6 +42,7 @@ describe('calculateDiscount', () => {
 ```
 
 ❌ Bad:
+
 ```
 describe('calculateDiscount', () => {
   it('test1', () => {})
@@ -90,16 +92,27 @@ import { createServer } from '../src/server.js'
 
 describe('GET /applications/{id}', () => {
   let server
-  beforeAll(async () => { server = await createServer(); await server.initialize() })
-  afterAll(async () => { await server.stop() })
+  beforeAll(async () => {
+    server = await createServer()
+    await server.initialize()
+  })
+  afterAll(async () => {
+    await server.stop()
+  })
 
   it('should return 200 for a valid application', async () => {
-    const response = await server.inject({ method: 'GET', url: '/applications/123' })
+    const response = await server.inject({
+      method: 'GET',
+      url: '/applications/123'
+    })
     expect(response.statusCode).toBe(200)
   })
 
   it('should return 404 when application does not exist', async () => {
-    const response = await server.inject({ method: 'GET', url: '/applications/does-not-exist' })
+    const response = await server.inject({
+      method: 'GET',
+      url: '/applications/does-not-exist'
+    })
     expect(response.statusCode).toBe(404)
   })
 })
@@ -123,12 +136,12 @@ Security-critical paths require 100% test coverage. Test that:
 
 ## Coverage targets
 
-| Scope | Target |
-|-------|--------|
-| Global | ≥90% |
-| Core business logic | ≥95% |
-| Error handling paths | 100% |
-| Security-critical paths | 100% |
+| Scope                   | Target |
+| ----------------------- | ------ |
+| Global                  | ≥90%   |
+| Core business logic     | ≥95%   |
+| Error handling paths    | 100%   |
+| Security-critical paths | 100%   |
 
 ## Journey tests (Playwright)
 
@@ -154,6 +167,7 @@ Always scope element checks to their containing parent to avoid matching multipl
 ### GDS component testing
 
 Test GOV.UK Design System components using specific patterns:
+
 - **Details**: test summary text, expand/collapse (`open` attribute), content rendering
 - **Tables**: verify captions, headers, and cells via `getByRole('table')` with scoped selectors
 - **Forms**: test validation messages, error summaries, hint text, and input states

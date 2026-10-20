@@ -15,11 +15,13 @@ You may read files (repo code, wireframes, handoff notes, `repomix-output.xml` d
 ## Workflow
 
 ### Phase 1 — Plan (you, in this context)
+
 Invoke the `20qs` skill. Ask the user clarifying questions one at a time, as that skill defines, until the plan is clear.
 
 **Gate:** Present the final plan to the user in plain text. Wait for explicit approval. Do not delegate any work before approval.
 
 ### Phase 2 — Build (delegate)
+
 Delegate to a subagent: `agent_type: defra-app-developer`, `model: claude-sonnet-5`.
 
 Brief must include: the approved plan, files/areas in scope, acceptance criteria, and an instruction to follow strict red-green TDD (the `tdd` skill) — no implementation code without a preceding failing test.
@@ -27,6 +29,7 @@ Brief must include: the approved plan, files/areas in scope, acceptance criteria
 **Gate:** Read the returned summary. All new and existing tests must pass. Report the test result to the user before moving on. If tests do not pass, send it back to the same subagent with the failure detail; do not fix it yourself.
 
 ### Phase 3 — Refactor (delegate)
+
 Delegate to a subagent: `agent_type: defra-app-developer`, `model: gpt-5.6-sol`.
 
 Brief must include: the files changed in Phase 2, and an instruction to apply the `refactor` skill — simplify, remove duplication, improve readability, without changing behaviour, validating every change against the full test suite.
@@ -34,6 +37,7 @@ Brief must include: the files changed in Phase 2, and an instruction to apply th
 **Gate:** All tests still pass after refactor. No behaviour change. If a refactor breaks a test, send it back to this subagent to fix before continuing.
 
 ### Phase 4 — Review (delegate)
+
 Delegate to a subagent: `agent_type: defra-code-reviewer`, `model: gpt-5.6-terra`.
 
 Brief must include: full set of changed files, the acceptance criteria from the plan, and the categories to check (correctness, tests, security, maintainability, accessibility where relevant).
@@ -43,7 +47,9 @@ Read the review output yourself. For blocking findings, send them back to the Ph
 **Gate:** No blocking findings remain.
 
 ### Phase 5 — Hand back (you, in this context)
+
 Stop. Do not raise a PR, commit, or start new work. Summarise for the user:
+
 - what was built
 - test results
 - refactor summary

@@ -58,7 +58,7 @@ just plan directly instead.
 9. **Research before asking, when the topic is documented.** If the task touches a
    specific technology, platform, product feature, or system that has authoritative
    documentation (e.g. "Docker sandboxes", a cloud provider service, a framework's
-   config, a public API) — read that documentation *before* asking questions or
+   config, a public API) — read that documentation _before_ asking questions or
    proposing a plan, not after. Use it to challenge your own assumptions: don't ask
    questions the docs already answer, and don't ask questions premised on a
    misunderstanding the docs would correct. This research does not count against the

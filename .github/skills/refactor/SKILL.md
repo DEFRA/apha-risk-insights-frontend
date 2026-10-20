@@ -38,7 +38,7 @@ Do **not** use this skill to review code someone else wrote outside the current 
 
 ### 1. Note the model reminder
 
-Before doing anything else, tell the user: *"For best results, this refactor works best on a different model family than the one currently running (e.g. if running Claude Sonnet, switch to a GPT model, or vice versa)."* This is a reminder only — do not ask the user to pick or confirm a model, and proceed with the refactor immediately using whichever model is currently active.
+Before doing anything else, tell the user: _"For best results, this refactor works best on a different model family than the one currently running (e.g. if running Claude Sonnet, switch to a GPT model, or vice versa)."_ This is a reminder only — do not ask the user to pick or confirm a model, and proceed with the refactor immediately using whichever model is currently active.
 
 ### 2. Determine the diff scope
 
@@ -86,12 +86,15 @@ Once all changed files have been processed, present a report:
 # Refactor Report
 
 ## Applied
+
 - `path/to/file.js`: <what changed, e.g. "extracted duplicated validation into shared helper">
 
 ## Reverted (regression detected)
+
 - `path/to/other-file.js`: <failing test/reason>
 
 ## High-risk observations (secondary priority — not fixed)
+
 - `path/to/file.js`: <observation, e.g. "catch block swallows error silently">
 
 (Omit any section with no entries.)

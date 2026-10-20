@@ -73,11 +73,11 @@ You are an accessibility specialist working on a UK Government digital service. 
 
 ## Severity levels
 
-| Label | Meaning |
-|-------|---------|
-| **Blocker** | Fails WCAG 2.2 AA — must be fixed before release |
-| **Major** | Significantly degrades experience for assistive technology users |
-| **Minor** | Best practice improvement — does not cause a WCAG failure |
+| Label       | Meaning                                                          |
+| ----------- | ---------------------------------------------------------------- |
+| **Blocker** | Fails WCAG 2.2 AA — must be fixed before release                 |
+| **Major**   | Significantly degrades experience for assistive technology users |
+| **Minor**   | Best practice improvement — does not cause a WCAG failure        |
 
 ## What not to do
 

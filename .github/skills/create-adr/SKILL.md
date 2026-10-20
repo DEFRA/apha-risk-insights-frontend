@@ -9,7 +9,7 @@ Authors an Architecture Decision Record (ADR) capturing a significant decision i
 consistent, service-agnostic format. Use this skill instead of hand-rolling ADRs so
 records stay uniform across every service.
 
-> **Why this matters:** ADRs preserve the *rationale* behind hard-to-reverse decisions.
+> **Why this matters:** ADRs preserve the _rationale_ behind hard-to-reverse decisions.
 > Consistent structure lets both humans and agents quickly check prior decisions before
 > making significant changes, and stay aligned with (or explicitly supersede) them.
 
@@ -32,13 +32,13 @@ Routine, low-impact changes do **not** need an ADR.
 
 Every ADR is a single markdown file with exactly these sections:
 
-| Section        | Purpose                                                        |
-| -------------- | -------------------------------------------------------------- |
-| `Title`        | Short, descriptive name of the decision (the H1 heading).      |
-| `Status`       | `Proposed`, `Accepted`, `Superseded`, or `Deprecated`.         |
-| `Context`      | The problem, forces, constraints, and background.              |
-| `Decision`     | The decision, in active voice ("We will ...").                 |
-| `Consequences` | Resulting trade-offs — positive, negative, and neutral.        |
+| Section        | Purpose                                                   |
+| -------------- | --------------------------------------------------------- |
+| `Title`        | Short, descriptive name of the decision (the H1 heading). |
+| `Status`       | `Proposed`, `Accepted`, `Superseded`, or `Deprecated`.    |
+| `Context`      | The problem, forces, constraints, and background.         |
+| `Decision`     | The decision, in active voice ("We will ...").            |
+| `Consequences` | Resulting trade-offs — positive, negative, and neutral.   |
 
 - **Location:** `adr/` directory at the repository root.
 - **Filename:** a verb phrase describing the decision's purpose, suffixed with `.adr.md`
@@ -82,6 +82,7 @@ Turn the decision's purpose into a verb phrase + `.adr.md`, lowercase kebab-case
 Ensure it does not collide with an existing file in `adr/`.
 
 Examples:
+
 - Decision about error handling -> `handling-errors.adr.md`
 - Decision to adopt a validation library -> `choosing-validation-library.adr.md`
 
