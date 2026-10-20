@@ -4,193 +4,198 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_apha-risk-insights-frontend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_apha-risk-insights-frontend)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_apha-risk-insights-frontend&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DEFRA_apha-risk-insights-frontend)
 
-Core delivery platform Node.js Frontend Template.
+Server-rendered GOV.UK frontend for APHA Risk Insights. It shows disease risk assessments and, for each disease, a
+detail page with its risk level history. Built from the Defra Core Delivery Platform (CDP) Node.js frontend template.
 
-- [Requirements](#requirements)
-  - [Node.js](#nodejs)
-- [Server-side Caching](#server-side-caching)
-- [Redis](#redis)
-- [Local Development](#local-development)
-  - [Setup](#setup)
-  - [Development](#development)
-  - [Production](#production)
-  - [Npm scripts](#npm-scripts)
-  - [Update dependencies](#update-dependencies)
-  - [Formatting](#formatting)
-    - [Windows prettier issue](#windows-prettier-issue)
+> [!NOTE]
+> Risk data is currently read from a static sample file (`src/data/risk-sample-data.json`). It is sample data, not real
+> assessments. It is accessed through a repository module so it can later be swapped for the `apha-risk-insights-backend`
+> API. See [ADR: accessing risk data through a repository](./adr/accessing-risk-data-through-repository.adr.md).
+
+- [Prerequisites](#prerequisites)
+- [Architecture](#architecture)
+- [Local development](#local-development)
+- [Configuration](#configuration)
+- [Testing and quality checks](#testing-and-quality-checks)
 - [Docker](#docker)
-  - [Development image](#development-image)
-  - [Production image](#production-image)
-  - [Docker Compose](#docker-compose)
-  - [Dependabot](#dependabot)
-  - [SonarCloud](#sonarcloud)
+- [Deployment and CI](#deployment-and-ci)
+- [Server-side caching and Redis](#server-side-caching-and-redis)
+- [Proxy](#proxy)
+- [Troubleshooting](#troubleshooting)
+- [Further documentation](#further-documentation)
 - [Licence](#licence)
-  - [About the licence](#about-the-licence)
 
-## Requirements
+## Prerequisites
 
-### Node.js
+- Node.js `>=24`. The exact version is in [.nvmrc](./.nvmrc); use [nvm](https://github.com/nvm-sh/nvm): `nvm use`
+- npm (bundled with Node.js)
+- Docker and Docker Compose (optional, for the containerised environment and for running tests the way CI does)
 
-Please install Node Version Manager [nvm](https://github.com/creationix/nvm)
+## Architecture
 
-To use the correct version of Node.js for this application, via nvm:
+A [Hapi](https://hapi.dev) server rendering [Nunjucks](https://mozilla.github.io/nunjucks/) templates with
+[govuk-frontend](https://frontend.design-system.service.gov.uk/). Client assets (Sass, JavaScript) are built with
+[Vite](https://vite.dev). The history chart uses [Plotly](https://plotly.com/javascript/)
+([ADR](./adr/use-plotly-for-risk-history-chart.adr.md)). Configuration uses [convict](https://github.com/mozilla/node-convict).
 
-```bash
-cd apha-risk-insights-frontend
-nvm use
-```
+The code uses a flat `src/` layout with domain folders ([ADR](./adr/adopting-flat-src-layout.adr.md)):
 
-## Server-side Caching
+| Path             | Purpose                                                                         |
+| ---------------- | ------------------------------------------------------------------------------- |
+| `src/index.js`   | Entry point; starts the server                                                  |
+| `src/server.js`  | Creates the Hapi server and registers plugins and routes                        |
+| `src/config`     | Convict configuration (`config.js`)                                             |
+| `src/plugins`    | Hapi plugins: routing, templates, sessions, CSP, logging, tracing, static files |
+| `src/routes`     | Route definitions per domain (`health`, `home`, `risk`)                         |
+| `src/presenters` | Turn data into view models for templates                                        |
+| `src/data`       | Risk data source and sample data                                                |
+| `src/views`      | Nunjucks templates and components                                               |
+| `src/client`     | Front-end JavaScript and Sass, built by Vite                                    |
+| `src/utils`      | Logger, caching, error and server start helpers                                 |
+| `test`           | `unit` and `integration` tests, plus shared `helpers`                           |
+| `adr`            | Architecture decision records                                                   |
 
-We use Catbox for server-side caching. By default the service will use CatboxRedis when deployed and CatboxMemory for
-local development.
-You can override the default behaviour by setting the `SESSION_CACHE_ENGINE` environment variable to either `redis` or
-`memory`.
+Routes:
 
-Please note: CatboxMemory (`memory`) is _not_ suitable for production use! The cache will not be shared between each
-instance of the service and it will not persist between restarts.
+| Route          | Description                       |
+| -------------- | --------------------------------- |
+| `/`            | Home page                         |
+| `/risk`        | Risk list                         |
+| `/risk/{slug}` | Disease detail with risk history  |
+| `/health`      | Health check used by the platform |
 
-## Redis
+## Local development
 
-Redis is an in-memory key-value store. Every instance of a service has access to the same Redis key-value store similar
-to how services might have a database (or MongoDB). All frontend services are given access to a namespaced prefixed that
-matches the service name. e.g. `my-service` will have access to everything in Redis that is prefixed with `my-service`.
-
-If your service does not require a session cache to be shared between instances or if you don't require Redis, you can
-disable setting `SESSION_CACHE_ENGINE=false` or changing the default value in `src/config/index.js`.
-
-## Proxy
-
-We are using forward-proxy which is set up by default. Services are automatically configured with the proxy environment variables when deployed.
-
-Node.js 24 uses these variables to route outbound HTTP(S) requests through the proxy:
-
-NODE_USE_ENV_PROXY=1
-HTTPS_PROXY=...
-NO_PROXY=...
-
-No additional proxy configuration is required in the service.
-
-## Local Development
-
-### Setup
-
-Install application dependencies:
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-### Git hooks
-
-Install git hooks (optional)
+Optionally copy [.env.example](./.env.example) to `.env` to override defaults (it is loaded automatically by `npm run dev`):
 
 ```bash
-npm run git:hooks
+cp .env.example .env
 ```
 
-### Development
-
-To run the application in `development` mode run:
+Run in development mode (auto-restarts on changes in `src`, debugger on port 9229):
 
 ```bash
 npm run dev
 ```
 
-### Production
-
-To mimic the application running in `production` mode locally run:
+The app is available at <http://localhost:3000>. To mimic production (builds the frontend first):
 
 ```bash
 npm start
 ```
 
-### Npm scripts
+Build the client assets only with `npm run build:frontend`. List all scripts with `npm run`.
 
-All available Npm scripts can be seen in [package.json](./package.json)
-To view them in your command line run:
+### Git hooks
+
+`.npmrc` sets `ignore-scripts=true`, so hooks are not installed automatically. To install the husky pre-commit hook
+(runs security audit, format check, lint and tests) run:
 
 ```bash
-npm run
+npm run setup:husky
 ```
 
 ### Update dependencies
 
-To update dependencies use [npm-check-updates](https://github.com/raineorshine/npm-check-updates):
-
-> The following script is a good start. Check out all the options on
-> the [npm-check-updates](https://github.com/raineorshine/npm-check-updates)
+Use [npm-check-updates](https://github.com/raineorshine/npm-check-updates). Dependencies are pinned to exact versions
+and `.npmrc` sets a minimum release age.
 
 ```bash
-ncu --interactive --format group
+npx npm-check-updates --interactive --format group
 ```
 
-### Formatting
+### Windows line endings
 
-#### Windows prettier issue
+If formatting complains about line breaks on Windows, run `git config --global core.autocrlf false`.
 
-If you are having issues with formatting of line breaks on Windows update your global git config by running:
+## Configuration
+
+All settings are defined in [src/config/config.js](./src/config/config.js) and set by environment variables. Every
+variable, with its development default, is documented in [.env.example](./.env.example). Some defaults differ when
+`NODE_ENV=production` (for example Redis session cache, secure cookies and ECS log format).
+
+## Testing and quality checks
 
 ```bash
-git config --global core.autocrlf false
+npm test                # vitest with coverage
+npm run test:watch      # watch mode
+npm run lint            # eslint and stylelint
+npm run format:check    # prettier check (npm run format to fix)
+npm run security-audit  # npm audit, critical level
+npm run docker:test     # run tests in Docker, as CI does
 ```
 
 ## Docker
 
-### Development image
-
 > [!TIP]
-> For Apple Silicon users, you may need to add `--platform linux/amd64` to the `docker run` command to ensure
-> compatibility fEx: `docker build --platform=linux/arm64 --no-cache --tag apha-risk-insights-frontend`
+> On Apple Silicon you may need `--platform linux/amd64` on `docker build`/`docker run`.
 
-Build:
+Development image:
 
 ```bash
 docker build --target development --no-cache --tag apha-risk-insights-frontend:development .
-```
-
-Run:
-
-```bash
 docker run -p 3000:3000 apha-risk-insights-frontend:development
 ```
 
-### Production image
-
-Build:
+Production image:
 
 ```bash
 docker build --no-cache --tag apha-risk-insights-frontend .
-```
-
-Run:
-
-```bash
 docker run -p 3000:3000 apha-risk-insights-frontend
 ```
 
 ### Docker Compose
 
-A local environment with:
-
-- Floci (replacing Localstack) for AWS services (S3, SQS)
-- Redis
-- MongoDB
-- This service.
-- A commented out backend example.
+Starts this service with Floci (AWS emulation for S3/SQS), Redis and MongoDB:
 
 ```bash
-docker compose up --build -d
+npm run docker:up      # or: docker compose up --build -d
+npm run docker:stop    # stop; docker:stop:v also removes volumes
 ```
 
-### Dependabot
+## Deployment and CI
 
-We have added an example dependabot configuration file to the repository. You can enable it by renaming
-the [.github/example.dependabot.yml](.github/example.dependabot.yml) to `.github/dependabot.yml`
+- Pull requests run [check-pull-request.yml](./.github/workflows/check-pull-request.yml): security audit, format check,
+  lint, tests in Docker and a Docker image build.
+- [publish.yml](./.github/workflows/publish.yml) and [publish-hotfix.yml](./.github/workflows/publish-hotfix.yml)
+  build and publish the image for deployment on CDP.
+- Quality is tracked in SonarCloud (see [sonar-project.properties](./sonar-project.properties)).
+- An example Dependabot config is in [.github/example.dependabot.yml](.github/example.dependabot.yml); rename it to
+  `.github/dependabot.yml` to enable it.
 
-### SonarCloud
+## Server-side caching and Redis
 
-Instructions for setting up SonarCloud can be found in [sonar-project.properties](./sonar-project.properties).
+Catbox is used for server-side sessions. The default is CatboxRedis in production and CatboxMemory locally. Override
+with `SESSION_CACHE_ENGINE=redis|memory`. Memory is _not_ suitable for production: it is not shared between instances
+and does not persist across restarts.
+
+Redis keys are namespaced by `REDIS_KEY_PREFIX` (default `apha-risk-insights-frontend:`).
+
+## Proxy
+
+Outbound requests go through the CDP forward proxy. Deployed services get `NODE_USE_ENV_PROXY=1`, `HTTPS_PROXY` and
+`NO_PROXY` automatically and Node.js 24 uses them; no extra configuration is needed.
+
+## Troubleshooting
+
+- **Wrong Node version / engine errors**: run `nvm use`.
+- **Port 3000 in use**: set `PORT` in `.env`.
+- **Logger fails on start**: do not set an empty `LOG_REDACT`; leave it unset locally.
+- **Session errors in production**: `SESSION_COOKIE_PASSWORD` must be at least 32 characters.
+- **Redis connection errors locally**: use `SESSION_CACHE_ENGINE=memory` (default) or start Redis via Docker Compose.
+- **Install scripts did not run**: expected, `.npmrc` has `ignore-scripts=true`.
+- **Page styles/assets missing under `npm start`**: run `npm run build:frontend`.
+
+## Further documentation
+
+- [Architecture decision records](./adr)
+- [Disease detail plan](./docs/plans/disease-detail-plan.md)
 
 ## Licence
 
