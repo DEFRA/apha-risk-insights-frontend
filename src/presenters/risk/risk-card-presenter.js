@@ -1,4 +1,3 @@
-import { slugify } from '#/utils/slugify.js'
 import { LEVELS, levelFor, tagFor } from '#/presenters/risk/risk-display.js'
 import { formatDisplayDate } from '#/plugins/template-renderer/filters/format-date.js'
 
@@ -7,13 +6,12 @@ const NO_PREVIOUS_TEXT = 'No previous assessment'
 const LEVEL_COUNT = Object.keys(LEVELS).length
 
 /**
- * Link key for a risk: the slug of the disease name only. All strains are
- * grouped under one disease for now. Falls back to the id if the name does
- * not slugify.
- * @param {{id: string, disease: {name: string}}} summary
+ * Link key for a risk: the lowercase disease code. All strains are grouped
+ * under one disease for now. The code is required by the API contract.
+ * @param {{code: string}} disease
  * @returns {string}
  */
-const riskKey = ({ id, disease }) => slugify(disease.name) || id
+const riskKey = ({ code }) => code.toLowerCase()
 
 /**
  * Maps an API `RiskSummary` to the params of the `riskCard` component.
@@ -27,7 +25,7 @@ const riskKey = ({ id, disease }) => slugify(disease.name) || id
  * @returns {object} display-ready params for `appRiskCard`
  */
 export const riskCardPresenter = (
-  { id, disease, strain, risk },
+  { disease, strain, risk },
   { variant } = {}
 ) => {
   const level = levelFor(risk.status)
@@ -47,7 +45,7 @@ export const riskCardPresenter = (
   return {
     ...detailParams,
     title: disease.name,
-    href: `/risk/${riskKey({ id, disease })}`,
+    href: `/risk/${riskKey(disease)}`,
     strain,
     levelLabel: level.label,
     levelNumber: level.number,

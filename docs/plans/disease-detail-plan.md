@@ -1,5 +1,7 @@
 # Plan: disease detail page, reusable template and components
 
+> Note: the slug route in this plan is superseded by `docs/plans/disease-code-lookup-plan.md` (`/risk/{diseaseCode}`).
+
 Produced by a 20qs planning session (12 of 20 questions used), revised to use Plotly for the chart. Source design: `docs/plans/assets/disease-detail-mock.png` (copied from `Downloads/A · Cards — Disease detail (single card)@1x.png`). Builds on `docs/plans/risk-card-plan.md` (the `riskCard` component and `/risk` page), which must land first.
 
 **Implementation agent:** use `defra-app-developer` (Defra APP builder). Give it this file and the work package brief. Follow the `tdd` skill (red, green, refactor). Use `defra-accessibility-advisor` for the a11y pass and `defra-code-reviewer` before the PR. Run `npm run security-audit`, `format:check`, `lint` and `test` before pushing (see the `verify-pr-stack-before-push` memory).

@@ -4,7 +4,7 @@ import { riskCardPresenter } from '#/presenters/risk/risk-card-presenter.js'
 
 const baseParams = {
   title: 'Highly Pathogenic Avian Influenza',
-  href: '/risk/highly-pathogenic-avian-influenza',
+  href: '/risk/hpai',
   strain: 'H5N1',
   levelLabel: 'High',
   levelNumber: 5,
@@ -56,7 +56,7 @@ describe('Risk card component', () => {
       const $link = $card('h2.govuk-summary-card__title a.govuk-link')
 
       expect($link.text().trim()).toBe('Highly Pathogenic Avian Influenza')
-      expect($link.attr('href')).toBe('/risk/highly-pathogenic-avian-influenza')
+      expect($link.attr('href')).toBe('/risk/hpai')
     })
 
     test('Should render the strain row', () => {

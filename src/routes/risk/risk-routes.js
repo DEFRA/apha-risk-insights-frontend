@@ -1,6 +1,6 @@
 import Boom from '@hapi/boom'
 
-import { getRiskBySlug, listRisks } from '#/data/risk-data-source.js'
+import { getRiskByDiseaseCode, listRisks } from '#/data/risk-data-source.js'
 import { diseaseDetailPresenter } from '#/presenters/risk/disease-detail-presenter.js'
 import { riskPresenter } from '#/presenters/risk/risk-presenter.js'
 
@@ -13,9 +13,9 @@ const getRisk = {
 
 const getRiskDetail = {
   method: 'GET',
-  path: '/risk/{slug}',
+  path: '/risk/{diseaseCode}',
   handler: async ({ params }, h) => {
-    const detail = await getRiskBySlug(params.slug)
+    const detail = await getRiskByDiseaseCode(params.diseaseCode)
 
     if (!detail) {
       throw Boom.notFound('Disease not found')

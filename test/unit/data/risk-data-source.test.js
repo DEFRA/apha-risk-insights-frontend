@@ -1,4 +1,26 @@
-import { getRisk, getRiskBySlug, listRisks } from '#/data/risk-data-source.js'
+import { readFile } from 'node:fs/promises'
+
+import {
+  getRisk,
+  getRiskByDiseaseCode,
+  listRisks
+} from '#/data/risk-data-source.js'
+
+const SAMPLE_DATA_URL = new URL(
+  '../../../src/data/risk-sample-data.json',
+  import.meta.url
+)
+
+const mockLoggerWarn = vi.hoisted(() => vi.fn())
+
+vi.mock('#/utils/logger.js', () => ({
+  createLogger: () => ({ warn: mockLoggerWarn })
+}))
+vi.mock('node:fs/promises', async (importOriginal) => {
+  const actual = await importOriginal()
+
+  return { ...actual, readFile: vi.fn(actual.readFile) }
+})
 
 describe('#listRisks', () => {
   test('Should return a single page describing all items', async () => {
@@ -45,7 +67,7 @@ const MIN_ASSESSMENTS = 2
 const MAX_ASSESSMENTS = 4
 const MIN_PAST = 1
 const MAX_PAST = 3
-const HPAI_SLUG = 'highly-pathogenic-avian-influenza'
+const HPAI_CODE = 'HPAI'
 
 const getAll = async () => {
   const { items } = await listRisks()
@@ -55,23 +77,59 @@ const getAll = async () => {
 
 const toTimeline = ({ risk, riskHistory }) => [risk, ...riskHistory]
 
-describe('#getRiskBySlug', () => {
-  test('Should find HPAI by its disease slug', async () => {
-    const risk = await getRiskBySlug(HPAI_SLUG)
-
-    expect(risk.disease.code).toBe('HPAI')
-    expect(risk.risk.status).toBe('high')
+describe('#getRiskByDiseaseCode', () => {
+  beforeEach(() => {
+    mockLoggerWarn.mockClear()
   })
 
-  test('Should shape the record as RiskDetail with riskHistory, not history', async () => {
-    const record = await getRiskBySlug(HPAI_SLUG)
+  test.each([['HPAI'], ['hpai'], ['Hpai']])(
+    'Should find HPAI by the disease code %s',
+    async (code) => {
+      const risk = await getRiskByDiseaseCode(code)
 
-    expect(Array.isArray(record.riskHistory)).toBe(true)
+      expect(risk.disease.code).toBe('HPAI')
+      expect(risk.risk.status).toBe('high')
+    }
+  )
+
+  test('Should return undefined for an unknown disease code', async () => {
+    expect(await getRiskByDiseaseCode('zzz')).toBeUndefined()
+  })
+
+  test('Should return the record with its riskHistory, not history', async () => {
+    const record = await getRiskByDiseaseCode(HPAI_CODE)
+
+    expect(record.riskHistory.length).toBeGreaterThan(0)
     expect('history' in record).toBe(false)
   })
 
-  test('Should return undefined for an unknown slug', async () => {
-    expect(await getRiskBySlug('not-a-disease')).toBeUndefined()
+  test('Should not warn when exactly one record matches', async () => {
+    await getRiskByDiseaseCode(HPAI_CODE)
+
+    expect(mockLoggerWarn).not.toHaveBeenCalled()
+  })
+
+  test('Should use the first record and warn when more than one matches', async () => {
+    const { readFile: original } = await vi.importActual('node:fs/promises')
+    const actual = JSON.parse(await original(SAMPLE_DATA_URL, 'utf8'))
+    const hpai = actual.items.find(({ disease }) => disease.code === 'HPAI')
+    const duplicate = { ...hpai, id: 'duplicate-id' }
+    readFile.mockResolvedValue(
+      JSON.stringify({ items: [hpai, duplicate, ...actual.items] })
+    )
+
+    try {
+      const record = await getRiskByDiseaseCode(HPAI_CODE)
+
+      expect(record.id).toBe(hpai.id)
+      expect(mockLoggerWarn).toHaveBeenCalledTimes(1)
+      expect(mockLoggerWarn).toHaveBeenCalledWith(
+        { diseaseCode: HPAI_CODE, matchCount: 3 },
+        expect.stringContaining('Multiple risk records')
+      )
+    } finally {
+      readFile.mockImplementation(original)
+    }
   })
 })
 
@@ -81,9 +139,9 @@ describe('#getRisk', () => {
   })
 
   test('Should return the record fetched by its id', async () => {
-    const bySlug = await getRiskBySlug(HPAI_SLUG)
+    const byCode = await getRiskByDiseaseCode(HPAI_CODE)
 
-    expect(await getRisk(bySlug.id)).toEqual(bySlug)
+    expect(await getRisk(byCode.id)).toEqual(byCode)
   })
 })
 
@@ -130,7 +188,7 @@ describe('risk history', () => {
   })
 
   test('Should hold the three HPAI mock assessments', async () => {
-    const timeline = toTimeline(await getRiskBySlug(HPAI_SLUG))
+    const timeline = toTimeline(await getRiskByDiseaseCode(HPAI_CODE))
 
     expect(
       timeline.map(({ dateReported, status, previousStatus, levelChange }) => [

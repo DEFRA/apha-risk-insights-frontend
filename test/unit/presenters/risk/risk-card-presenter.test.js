@@ -2,7 +2,7 @@ import { riskCardPresenter } from '#/presenters/risk/risk-card-presenter.js'
 
 const buildSummary = (overrides = {}) => ({
   id: '80d1d0e4-381f-4a68-887b-fd5c5556943d',
-  disease: { name: 'Highly Pathogenic Avian Influenza' },
+  disease: { code: 'HPAI', name: 'Highly Pathogenic Avian Influenza' },
   strain: 'H5N1',
   risk: {
     status: 'high',
@@ -101,36 +101,26 @@ describe('#riskCardPresenter', () => {
     }
   )
 
-  test('Should link by disease name only so all strains share one link', () => {
+  test('Should link by lowercase disease code so all strains share one link', () => {
     const h5n1 = riskCardPresenter(buildSummary({ strain: 'H5N1' }))
     const h5n8 = riskCardPresenter(buildSummary({ strain: 'H5N8' }))
 
-    expect(h5n1.href).toBe('/risk/highly-pathogenic-avian-influenza')
-    expect(h5n8.href).toBe('/risk/highly-pathogenic-avian-influenza')
+    expect(h5n1.href).toBe('/risk/hpai')
+    expect(h5n8.href).toBe('/risk/hpai')
   })
 
-  test('Should not include the disease code in the output', () => {
-    const params = riskCardPresenter(
-      buildSummary({
-        disease: { code: 'HPAI', name: 'Highly Pathogenic Avian Influenza' }
-      })
-    )
-
-    expect(JSON.stringify(params)).not.toContain('HPAI')
-  })
-
-  test('Should fall back to the id when the name gives no slug', () => {
+  test('Should lowercase a mixed case disease code in the link', () => {
     const { href } = riskCardPresenter(
-      buildSummary({ disease: { name: '!!!' }, strain: undefined })
+      buildSummary({ disease: { code: 'AhS', name: 'African Horse Sickness' } })
     )
 
-    expect(href).toBe('/risk/80d1d0e4-381f-4a68-887b-fd5c5556943d')
+    expect(href).toBe('/risk/ahs')
   })
 
   test('Should map a full RiskSummary to card params', () => {
     expect(riskCardPresenter(buildSummary())).toEqual({
       title: 'Highly Pathogenic Avian Influenza',
-      href: '/risk/highly-pathogenic-avian-influenza',
+      href: '/risk/hpai',
       strain: 'H5N1',
       levelLabel: 'High',
       levelNumber: 5,
