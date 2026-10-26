@@ -31,8 +31,8 @@
     "test": "AWS_EMF_ENVIRONMENT=Local TZ=UTC vitest run --coverage",
     "test:watch": "AWS_EMF_ENVIRONMENT=Local TZ=UTC vitest",
     "security-audit": "npm audit --audit-level=critical",
-    "server:watch": "node --watch-path=./src --inspect=0.0.0.0 $([ -f .env ] && echo --env-file=.env) ./src | pino-pretty",
-    "server:debug": "node --watch-path=./src --inspect-brk=0.0.0.0 $([ -f .env ] && echo --env-file=.env) ./src | pino-pretty",
+    "server:watch": "node --watch-path=./src --inspect=0.0.0.0 $([ -f .env ] && echo --env-file=.env) ./src",
+    "server:debug": "node --watch-path=./src --inspect-brk=0.0.0.0 $([ -f .env ] && echo --env-file=.env) ./src",
     "prestart": "npm run build:frontend",
     "start": "NODE_ENV=production node .",
     "setup:husky": "node -e \"try { (await import('husky')).default() } catch (e) { if (e.code !== 'ERR_MODULE_NOT_FOUND') throw e }\" --input-type module"

@@ -14,8 +14,7 @@ const formatters = {
       serviceName
     })
   },
-  // Plain JSON to stdout; pretty-printed by the pino-pretty CLI in the dev scripts
-  'pino-pretty': {}
+  'pino-pretty': { transport: { target: 'pino-pretty' } }
 }
 
 export const loggerOptions = {
