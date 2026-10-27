@@ -6,7 +6,7 @@ services:
 
   floci:
     ports:
-      - '4566:4566'
+      - '4567:4566'
 
   redis:
     ports:
