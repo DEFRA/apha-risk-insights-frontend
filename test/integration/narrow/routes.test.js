@@ -76,8 +76,19 @@ describe('#routes', () => {
       expect.stringContaining('Highly Pathogenic Avian Influenza')
     )
     expect(result).toEqual(expect.stringContaining('H5N1'))
-    expect(result).toEqual(
-      expect.stringContaining('href="/risk/highly-pathogenic-avian-influenza"')
+    expect(result).toEqual(expect.stringContaining('href="/risk/hpai"'))
+  })
+
+  test('GET /risk links every card to its lowercase disease code', async () => {
+    const { items } = await listRisks()
+    const { result } = await server.inject({ method: 'GET', url: '/risk' })
+    const $ = cheerio.load(result)
+    const hrefs = $('a[href^="/risk/"]')
+      .map((_, a) => $(a).attr('href'))
+      .get()
+
+    expect(new Set(hrefs)).toEqual(
+      new Set(items.map(({ disease }) => `/risk/${disease.code.toLowerCase()}`))
     )
   })
 
@@ -101,8 +112,8 @@ describe('#routes', () => {
     expect(result).toEqual(expect.stringContaining('Page not found'))
   })
 
-  describe('GET /risk/{slug}', () => {
-    const HPAI_URL = '/risk/highly-pathogenic-avian-influenza'
+  describe('GET /risk/{diseaseCode}', () => {
+    const HPAI_URL = '/risk/hpai'
     const HPAI_NAME = 'Highly Pathogenic Avian Influenza'
 
     const COLUMN_SELECTOR =
@@ -211,8 +222,15 @@ describe('#routes', () => {
       expect(result).not.toContain('risk-history-chart')
     })
 
-    test('returns the error page for an unknown slug', async () => {
-      const { result, statusCode } = await get('/risk/not-a-disease')
+    test('renders the same detail page for an uppercase disease code', async () => {
+      const { $, statusCode } = await getPage('/risk/HPAI')
+
+      expect(statusCode).toBe(statusCodes.ok)
+      expect($('h1').text().trim()).toBe(HPAI_NAME)
+    })
+
+    test('returns the error page for an unknown disease code', async () => {
+      const { result, statusCode } = await get('/risk/zzz')
 
       expect(statusCode).toBe(statusCodes.notFound)
       expect(result).toContain('Page not found')

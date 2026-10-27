@@ -1,6 +1,8 @@
 import { readFile } from 'node:fs/promises'
 
-import { slugify } from '#/utils/slugify.js'
+import { createLogger } from '#/utils/logger.js'
+
+const logger = createLogger()
 
 const SAMPLE_DATA_URL = new URL('./risk-sample-data.json', import.meta.url)
 
@@ -43,15 +45,25 @@ export const getRisk = async (riskId) =>
   (await readRecords()).find(({ id }) => id === riskId)
 
 /**
- * Resolves a disease slug to a risk record. The slug is `slugify(disease.name)`,
- * the same rule the risk card presenter uses for its links. The slug is
- * resolved to a risk id, then the record is fetched by that id.
- * @param {string} slug
+ * Resolves a disease code to a risk record. The code is matched
+ * case-insensitively (it is uppercased before lookup). One record per disease
+ * is expected; if more than one matches, the first is used and a warning is
+ * logged. The code is resolved to a risk id, then the record is fetched by id.
+ * @param {string} code - disease code, for example `HPAI` or `hpai`
  * @returns {Promise<object | undefined>} the record, or undefined if not found
  */
-export const getRiskBySlug = async (slug) => {
-  const { items } = await listRisks()
-  const match = items.find(({ disease }) => slugify(disease.name) === slug)
+export const getRiskByDiseaseCode = async (code) => {
+  const diseaseCode = code.toUpperCase()
+  const matches = (await readRecords()).filter(
+    ({ disease }) => disease.code === diseaseCode
+  )
 
-  return match ? getRisk(match.id) : undefined
+  if (matches.length > 1) {
+    logger.warn(
+      { diseaseCode, matchCount: matches.length },
+      'Multiple risk records found for disease code; using the first'
+    )
+  }
+
+  return matches.length > 0 ? getRisk(matches[0].id) : undefined
 }

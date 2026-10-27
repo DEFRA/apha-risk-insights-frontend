@@ -2,7 +2,7 @@ import { riskPresenter } from '#/presenters/risk/risk-presenter.js'
 
 const summary = {
   id: 'abc',
-  disease: { name: 'African Swine Fever' },
+  disease: { code: 'ASF', name: 'African Swine Fever' },
   risk: {
     status: 'medium',
     previousStatus: 'medium',
@@ -30,7 +30,7 @@ describe('#riskPresenter', () => {
       cards: [
         expect.objectContaining({
           title: 'African Swine Fever',
-          href: '/risk/african-swine-fever'
+          href: '/risk/asf'
         })
       ]
     })
