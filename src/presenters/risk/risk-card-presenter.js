@@ -6,14 +6,6 @@ const NO_PREVIOUS_TEXT = 'No previous assessment'
 const LEVEL_COUNT = Object.keys(LEVELS).length
 
 /**
- * Link key for a risk: the lowercase disease code. All strains are grouped
- * under one disease for now. The code is required by the API contract.
- * @param {{code: string}} disease
- * @returns {string}
- */
-const riskKey = ({ code }) => code.toLowerCase()
-
-/**
  * Maps an API `RiskSummary` to the params of the `riskCard` component.
  *
  * Draft/proof-of-concept behaviour: an unknown `status`, `previousStatus` or
@@ -45,7 +37,7 @@ export const riskCardPresenter = (
   return {
     ...detailParams,
     title: disease.name,
-    href: `/risk/${riskKey(disease)}`,
+    href: `/risk/${disease.code.toLowerCase()}`,
     strain,
     levelLabel: level.label,
     levelNumber: level.number,

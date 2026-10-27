@@ -78,11 +78,11 @@ const getAll = async () => {
 const toTimeline = ({ risk, riskHistory }) => [risk, ...riskHistory]
 
 describe('#getRiskByDiseaseCode', () => {
-  beforeEach(() => {
-    mockLoggerWarn.mockClear()
+  afterEach(() => {
+    readFile.mockReset()
   })
 
-  test.each([['HPAI'], ['hpai'], ['Hpai']])(
+  test.each(['HPAI', 'hpai', 'Hpai'])(
     'Should find HPAI by the disease code %s',
     async (code) => {
       const risk = await getRiskByDiseaseCode(code)
@@ -110,26 +110,19 @@ describe('#getRiskByDiseaseCode', () => {
   })
 
   test('Should use the first record and warn when more than one matches', async () => {
-    const { readFile: original } = await vi.importActual('node:fs/promises')
-    const actual = JSON.parse(await original(SAMPLE_DATA_URL, 'utf8'))
-    const hpai = actual.items.find(({ disease }) => disease.code === 'HPAI')
+    const { items } = JSON.parse(await readFile(SAMPLE_DATA_URL, 'utf8'))
+    const hpai = items.find(({ disease }) => disease.code === HPAI_CODE)
     const duplicate = { ...hpai, id: 'duplicate-id' }
-    readFile.mockResolvedValue(
-      JSON.stringify({ items: [hpai, duplicate, ...actual.items] })
+    readFile.mockResolvedValue(JSON.stringify({ items: [hpai, duplicate] }))
+
+    const record = await getRiskByDiseaseCode(HPAI_CODE)
+
+    expect(record.id).toBe(hpai.id)
+    expect(mockLoggerWarn).toHaveBeenCalledTimes(1)
+    expect(mockLoggerWarn).toHaveBeenCalledWith(
+      { diseaseCode: HPAI_CODE, matchCount: 2 },
+      expect.stringContaining('Multiple risk records')
     )
-
-    try {
-      const record = await getRiskByDiseaseCode(HPAI_CODE)
-
-      expect(record.id).toBe(hpai.id)
-      expect(mockLoggerWarn).toHaveBeenCalledTimes(1)
-      expect(mockLoggerWarn).toHaveBeenCalledWith(
-        { diseaseCode: HPAI_CODE, matchCount: 3 },
-        expect.stringContaining('Multiple risk records')
-      )
-    } finally {
-      readFile.mockImplementation(original)
-    }
   })
 })
 

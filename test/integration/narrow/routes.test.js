@@ -87,12 +87,8 @@ describe('#routes', () => {
       .map((_, a) => $(a).attr('href'))
       .get()
 
-    expect([...new Set(hrefs)].sort()).toEqual(
-      [
-        ...new Set(
-          items.map(({ disease }) => `/risk/${disease.code.toLowerCase()}`)
-        )
-      ].sort()
+    expect(new Set(hrefs)).toEqual(
+      new Set(items.map(({ disease }) => `/risk/${disease.code.toLowerCase()}`))
     )
   })
 
